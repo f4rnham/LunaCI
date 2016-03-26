@@ -37,10 +37,14 @@ local manager = Manager(manifest, config.ci_targets)
 
 
 local task_check_deps = require "lunaci.tasks.dependencies"
-
 manager:add_task("Dependencies", task_check_deps)
+
+
+-- local generator = ReportGenerator()
+-- manager:set_generator(generator)
 
 
 manager:process_packages()
 
-pl.pretty.dump(manager.output)
+
+-- generator:generate_report()

@@ -30,13 +30,15 @@ end
 
 
 function Worker:run(targets, tasks)
+    -- TODO run on all versions
+    local ver, spec = self:get_latest_version()
+    local package = Package(self.package_name, ver, spec)
+    log:info("Processing version '%s'", package)
+
     for _, target in pairs(targets) do
         self.output[target] = {}
 
-        -- TODO run on all versions
-        local ver, spec = self:get_latest_version()
-        local package = Package(self.package_name, ver, spec)
-
+        log:info("Running target '%s %s'", target.name, target.version)
         self:run_target(package, target, tasks)
     end
 end
@@ -44,10 +46,21 @@ end
 
 function Worker:run_target(package, target, tasks)
     for _, task in pairs(tasks) do
-        local res, out, cont = task.call(package, target, self.manifest)
-        self:add_output(target, task, res, out)
+        log:info("Executing task '%s'", task.name)
+        local ok, res, out, cont = pcall(task.call, package, target, self.manifest)
+        if ok then
+            self:add_output(target, task, res, out)
 
-        if not cont then break end
+            log:debug("Task result: %s\nOutput: \n%s", res, out)
+            if not cont then
+                log:warn("Stopping task chain")
+                break
+            end
+        else
+            local msg = "Error running task: " .. res
+            log:error(msg)
+            self:add_output(target, task, "N/A", msg)
+        end
     end
 end
 

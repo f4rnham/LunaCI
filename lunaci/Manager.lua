@@ -21,7 +21,6 @@ function Manager.new(manifest, targets)
     self.manifest = manifest
     self.targets = targets or {}
     self.tasks = {}
-    self.output = {}
 
     return self
 end
@@ -42,13 +41,21 @@ end
 
 function Manager:process_packages()
     for name, versions in self:get_packages() do
+        log:info("Processing package '%s'", name)
         local worker = Worker(name, versions, self.manifest)
         worker:run(self.targets, self.tasks)
 
         local output = worker:get_output()
-        self.output[name] = output
-        -- send to templating (setup in constructor)
+
+        if self.generator then
+            self.generator:add_package(name, output)
+        end
     end
+end
+
+
+function Manager:set_generator(generator)
+    self.generator = generator
 end
 
 
