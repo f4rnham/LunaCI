@@ -1,8 +1,8 @@
 module("lunaci", package.seeall)
 
-local config = require "lunaci.config"
-local utils = require "lunaci.utils"
 local log = require "lunaci.log"
+local utils = require "lunaci.utils"
+local config = require "lunaci.config"
 local Manager = require "lunaci.Manager"
 local ReportGenerator = require "lunaci.ReportGenerator"
 

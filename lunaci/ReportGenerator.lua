@@ -1,26 +1,18 @@
 module("lunaci.ReportGenerator", package.seeall)
 
-local config = require "lunaci.config"
 local log = require "lunaci.log"
-local PackageReport = require "lunaci.PackageReport"
+local utils = require "lunaci.utils"
+local config = require "lunaci.config"
 
 local pl = require "pl.import_into"()
-local template = require "pl.template"
+local pl_template = require "pl.template"
 
-local const = require "rocksolver.constraints"
 
 
 local ReportGenerator = {}
 ReportGenerator.__index = ReportGenerator
-
 setmetatable(ReportGenerator, {
-    __call = function (class, ...)
-        return class.new(...)
-    end,
-})
-
-
-function ReportGenerator.new()
+__call = function(self)
     local self = setmetatable({}, ReportGenerator)
 
     self.reports = {}
@@ -29,6 +21,7 @@ function ReportGenerator.new()
 
     return self
 end
+})
 
 
 function ReportGenerator:set_targets(targets)
@@ -52,7 +45,7 @@ function ReportGenerator:output_file(tpl, env, output_file)
     local default_functions = {
         pairs = pairs,
         sort = pl.tablex.sort,
-        sort_version = function(i) return pl.tablex.sort(i, const.compareVersions) end,
+        sort_version = function(i) return pl.tablex.sort(i, utils.sortVersions) end,
         result2class = function(s) return (s and 'success' or (s == nil and 'warning' or 'danger')) end,
         result2msg = function(s) return (s and 'OK' or (s == nil and 'N/A' or 'Fail')) end,
         ucfirst = function(s) return (s:gsub("^%l", string.upper)) end,
@@ -61,7 +54,7 @@ function ReportGenerator:output_file(tpl, env, output_file)
 
     local vars = pl.tablex.merge(env, default_functions, true)
 
-    local tpl_output, err = template.substitute(tpl_content, vars)
+    local tpl_output, err = pl_template.substitute(tpl_content, vars)
 
     if err then
         log:error(err)

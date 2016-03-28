@@ -1,9 +1,9 @@
 module("lunaci.Worker", package.seeall)
 
 local log = require "lunaci.log"
+local utils = require "lunaci.utils"
 local PackageReport = require "lunaci.PackageReport"
 
-local const = require "rocksolver.constraints"
 local Package = require "rocksolver.Package"
 
 local pl = require "pl.import_into"()
@@ -11,14 +11,8 @@ local pl = require "pl.import_into"()
 
 local Worker = {}
 Worker.__index = Worker
-
 setmetatable(Worker, {
-    __call = function (class, ...)
-        return class.new(...)
-    end,
-})
-
-function Worker.new(name, versions, manifest)
+__call = function(self, name, versions, manifest)
     local self = setmetatable({}, Worker)
 
     self.package_name = name
@@ -28,10 +22,11 @@ function Worker.new(name, versions, manifest)
 
     return self
 end
+})
 
 
 function Worker:run(targets, tasks)
-    for version, spec in pl.tablex.sort(self.package_versions, const.compareVersions) do
+    for version, spec in pl.tablex.sort(self.package_versions, utils.sortVersions) do
         local package = Package(self.package_name, version, spec)
 
         for _, target in pairs(targets) do

@@ -3,6 +3,7 @@ module("lunaci.utils", package.seeall)
 local log = require "lunaci.log"
 
 local pl = require "pl.import_into"()
+local const = require "rocksolver.constraints"
 
 
 -- Change working directory.
@@ -45,3 +46,6 @@ function git_clone(source, target)
 
     return ok, not ok and err or nil
 end
+
+
+sortVersions = const.compareVersions

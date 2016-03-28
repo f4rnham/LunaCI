@@ -1,30 +1,21 @@
 module("lunaci.PackageReport", package.seeall)
 
-local config = require "lunaci.config"
 local log = require "lunaci.log"
+local utils = require "lunaci.utils"
 
 local pl = require "pl.import_into"()
-local const = require "rocksolver.constraints"
 
 
 local PackageReport = {}
 PackageReport.__index = PackageReport
-
 setmetatable(PackageReport, {
-    __call = function (class, ...)
-        return class.new(...)
-    end,
-})
-
-
-function PackageReport.new(name)
+__call = function(self, name)
     local self = setmetatable({}, PackageReport)
-
     self.name = name
     self.outputs = {}
-
     return self
 end
+})
 
 
 function PackageReport:add_output(package, target, task, success, output)
@@ -52,7 +43,7 @@ function PackageReport:get_output_location(package, version, target)
 end
 
 function PackageReport:get_output()
-    return pl.tablex.sort(self.outputs, const.compareVersions)
+    return pl.tablex.sort(self.outputs, utils.sortVersions)
 end
 
 function PackageReport:get_version(ver)

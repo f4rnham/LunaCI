@@ -1,23 +1,16 @@
 module("lunaci.Manager", package.seeall)
 
 local log = require "lunaci.log"
+local utils = require "lunaci.utils"
 local Worker = require "lunaci.Worker"
 
 local pl = require "pl.import_into"()
 
-local const = require "rocksolver.constraints"
-
 
 local Manager = {}
 Manager.__index = Manager
-
 setmetatable(Manager, {
-    __call = function (class, ...)
-        return class.new(...)
-    end,
-})
-
-function Manager.new(manifest, targets, generator)
+__call = function(self, manifest, targets, generator)
     local self = setmetatable({}, Manager)
 
     self.manifest = manifest
@@ -28,6 +21,7 @@ function Manager.new(manifest, targets, generator)
 
     return self
 end
+})
 
 
 function Manager:add_task(name, func)
@@ -59,7 +53,7 @@ function Manager:generate_reports()
     for name, versions in self:get_packages() do
         self.generator:generate_package(name)
 
-        for version in pl.tablex.sort(versions, const.compareVersions) do
+        for version in pl.tablex.sort(versions, utils.sortVersions) do
             self.generator:generate_package_version(name, version)
         end
     end
