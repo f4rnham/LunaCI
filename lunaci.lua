@@ -29,7 +29,7 @@ end
 
 
 --local manifest, err = fetch_manifest()
-local manifest = pl.pretty.read(pl.file.read(config.manifest.file .. ".test"))
+local manifest = pl.pretty.read(pl.file.read(config.manifest.file))
 if not manifest then
     error(err)
 end
@@ -40,7 +40,7 @@ local manager = Manager(manifest, config.ci_targets, generator)
 
 local task_check_deps = require "lunaci.tasks.dependencies"
 manager:add_task("Depends", task_check_deps)
-manager:add_task("Build", function(pkg) return config.STATUS_NA, "Building.", true end)
+--manager:add_task("Build", function(pkg) return config.STATUS_NA, "Building.", true end)
 
 
 

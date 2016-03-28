@@ -24,7 +24,6 @@ body{padding-top: 50px}
 .page-header .nav{float: right;margin-top: 1.8em;}
 
 .version .panel-group .panel-heading{cursor:pointer}
-.version .panel-success .panel-body{display: none;}
 .version pre{margin: 0;background:none;border:none}
 .version pre.panel-body{padding:0 15px;max-height:250px;overflow-y: auto}
 
