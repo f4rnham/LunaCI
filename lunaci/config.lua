@@ -14,19 +14,33 @@ manifest.file = path.join(manifest.path, "manifest-file")
 
 logging = {}
 logging.output = "console"
-logging.level = log.DEBUG
+logging.level = log.INFO
 logging.file = path.join(data_dir, "logs/lunaci-%s.log")
 logging.date_format = "%Y-%m-%d"
 
 
 ci_targets = {
-    {name = "lua", version = "5.2"},
+    "lua 5.1",
+    "lua 5.2",
+    "lua 5.3",
 }
 
 
-STATUS_OK = "OK"
-STATUS_NA = "N/A"
-STATUS_FAIL = "Fail"
-
 
 platform = {"unix", "linux"}
+
+
+templates = {}
+templates.path = path.abspath("templates")
+templates.asset_path = path.join(templates.path, "assets")
+
+templates.dashboard_file = path.join(templates.path, "dashboard.html")
+templates.package_file = path.join(templates.path, "package.html")
+templates.version_file = path.join(templates.path, "version.html")
+
+templates.output_path = path.join(data_dir, "output")
+templates.output_dashboard_file = "index.html"
+templates.output_package_file = "packages/%s/index.html"
+templates.output_version_file = "packages/%s/%s.html"
+
+templates.package_repo_url = "https://github.com/LuaDist2/%s"

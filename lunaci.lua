@@ -4,6 +4,7 @@ local config = require "lunaci.config"
 local utils = require "lunaci.utils"
 local log = require "lunaci.log"
 local Manager = require "lunaci.Manager"
+local ReportGenerator = require "lunaci.ReportGenerator"
 
 local pl = require "pl.import_into"()
 
@@ -33,18 +34,18 @@ if not manifest then
     error(err)
 end
 
-local manager = Manager(manifest, config.ci_targets)
+local generator = ReportGenerator()
+local manager = Manager(manifest, config.ci_targets, generator)
 
 
 local task_check_deps = require "lunaci.tasks.dependencies"
-manager:add_task("Dependencies", task_check_deps)
+manager:add_task("Depends", task_check_deps)
+manager:add_task("Build", function(pkg) return config.STATUS_NA, "Building.", true end)
 
-
--- local generator = ReportGenerator()
--- manager:set_generator(generator)
 
 
 manager:process_packages()
+--pl.pretty.dump(generator.packages)
 
 
--- generator:generate_report()
+manager:generate_reports()

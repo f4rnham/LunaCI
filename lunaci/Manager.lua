@@ -5,6 +5,8 @@ local Worker = require "lunaci.Worker"
 
 local pl = require "pl.import_into"()
 
+local const = require "rocksolver.constraints"
+
 
 local Manager = {}
 Manager.__index = Manager
@@ -15,22 +17,23 @@ setmetatable(Manager, {
     end,
 })
 
-function Manager.new(manifest, targets)
+function Manager.new(manifest, targets, generator)
     local self = setmetatable({}, Manager)
 
     self.manifest = manifest
     self.targets = targets or {}
     self.tasks = {}
+    self.generator = generator
+    generator:set_targets(targets)
 
     return self
 end
 
 
--- Provides fluent interface
 function Manager:add_task(name, func)
-    table.insert(self.tasks, {name = name, call = func})
-
-    return self
+    local task = {name = name, call = func}
+    table.insert(self.tasks, task)
+    self.generator:add_task(task)
 end
 
 
@@ -45,17 +48,21 @@ function Manager:process_packages()
         local worker = Worker(name, versions, self.manifest)
         worker:run(self.targets, self.tasks)
 
-        local output = worker:get_output()
-
-        if self.generator then
-            self.generator:add_package(name, output)
-        end
+        self.generator:add_report(name, worker:get_report())
     end
 end
 
 
-function Manager:set_generator(generator)
-    self.generator = generator
+function Manager:generate_reports()
+    self.generator:generate_dashboard()
+
+    for name, versions in self:get_packages() do
+        self.generator:generate_package(name)
+
+        for version in pl.tablex.sort(versions, const.compareVersions) do
+            self.generator:generate_package_version(name, version)
+        end
+    end
 end
 
 

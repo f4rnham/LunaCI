@@ -5,16 +5,18 @@ local check_package_dependencies = function(package, target, manifest)
     local config = require "lunaci.config"
     local pl = require "pl.import_into"()
     local DependencySolver = require "rocksolver.DependencySolver"
+    local const = require "rocksolver.constraints"
 
     -- Add target to manifest as a virtual package
     local manifest = pl.tablex.deepcopy(manifest)
-    manifest.packages[target.name] = {[target.version] = {}}
+    target_name, target_version = const.split(target)
+    manifest.packages[target_name] = {[target_version] = {}}
 
     local solver = DependencySolver(manifest, config.platform)
     local deps, err = solver:resolve_dependencies(tostring(package))
 
     if err then
-        return config.STATUS_FAIL, "Error resolving dependencies for package " .. tostring(package) .. ":\n", false
+        return false, "Error resolving dependencies for package " .. tostring(package) .. ":\n" .. err, false
     end
 
     local has_deps = false
@@ -30,7 +32,7 @@ local check_package_dependencies = function(package, target, manifest)
         out = out .. "None"
     end
 
-    return config.STATUS_OK, out, true
+    return true, out, true
 end
 
 

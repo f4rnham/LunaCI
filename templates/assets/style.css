@@ -1,0 +1,34 @@
+body{padding-top: 50px}
+
+.page-header{overflow: auto;}
+.page-header h1{float: left}
+
+.page-header .package-filter{float: right;margin: 1.6em 0 0}
+.page-header .package-filter .input-group-addon{background: none;}
+
+.page-header .stats{clear: both;overflow: auto;}
+.page-header .stats .progress-title{display: block;float: left;padding: 0 0 5px;}
+
+.navbar-inverse .navbar-brand{color:#fff}
+.navbar-inverse .navbar-text{font-style: italic;color:#ddd}
+.navbar-inverse .navbar-nav{margin-left: 50px;}
+.navbar-inverse .navbar-nav > li > a:hover{background:#000}
+
+.table.dashboard th, .table.dashboard td{text-align: center;}
+.table.dashboard .pkg, .table.dashboard .ver, .table.dashboard .date{text-align: left;}
+.table.dashboard td.link{padding: 0;}
+.table.dashboard td.link a{display: block;padding: 8px;}
+.table.dashboard td.q{width: 120px}
+
+
+.page-header .nav{float: right;margin-top: 1.8em;}
+
+.version .panel-group .panel-heading{cursor:pointer}
+.version .panel-success .panel-body{display: none;}
+.version pre{margin: 0;background:none;border:none}
+.version pre.panel-body{padding:0 15px;max-height:250px;overflow-y: auto}
+
+.version-nav{position: fixed;top:190px;width: 160px;}
+
+
+.footer{padding:40px;margin-top: 40px;border-top: 1px solid #eee;text-align: center;}
