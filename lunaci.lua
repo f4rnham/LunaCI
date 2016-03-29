@@ -45,7 +45,3 @@ manager:add_task("Depends", task_check_deps)
 
 
 manager:process_packages()
---pl.pretty.dump(generator.packages)
-
-
-manager:generate_reports()

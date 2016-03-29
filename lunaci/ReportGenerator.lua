@@ -40,8 +40,10 @@ end
 
 
 function ReportGenerator:output_file(tpl, env, output_file)
-    -- TODO add checks: tpl exists, output_dir exists
-    local tpl_content = pl.file.read(pl.path.abspath(tpl))
+    tpl = pl.path.abspath(tpl)
+    pl.utils.assert_arg(1, tpl, "string", pl.path.exists, "does not exist")
+
+    local tpl_content = pl.file.read(tpl)
     local default_functions = {
         pairs = pairs,
         sort = pl.tablex.sort,
@@ -67,7 +69,7 @@ end
 
 function ReportGenerator:generate_dashboard()
     local tpl_file = config.templates.dashboard_file
-    local output_file = pl.path.join(config.templates.output_path, config.templates.output_dashboard_file)
+    local output_file = pl.path.join(config.templates.output_path, config.templates.output_dashboard)
 
     local env = {
         stats = {
@@ -85,29 +87,49 @@ end
 
 function ReportGenerator:generate_package(name)
     local tpl_file = config.templates.package_file
-    local output_file = pl.path.join(config.templates.output_path, config.templates.output_package_file:format(name))
+    local output_file = pl.path.join(config.templates.output_path, config.templates.output_package:format(name))
 
     local env = {
         targets = self.targets,
         tasks = self.tasks,
         package = self.reports[name],
     }
-    pl.dir.makepath(pl.path.dirname(output_file))
+    utils.force_makepath(pl.path.dirname(output_file))
     return self:output_file(tpl_file, env, output_file)
 end
 
 
 function ReportGenerator:generate_package_version(name, version)
     local tpl_file = config.templates.version_file
-    local output_file = pl.path.join(config.templates.output_path, config.templates.output_version_file:format(name, version))
+    local output_file = pl.path.join(config.templates.output_path, config.templates.output_version:format(name, version))
 
     local env = {
         targets = self.targets,
         tasks = self.tasks,
         package = self.reports[name]:get_version(version),
     }
-    pl.dir.makepath(pl.path.dirname(output_file))
+    utils.force_makepath(pl.path.dirname(output_file))
     return self:output_file(tpl_file, env, output_file)
+end
+
+
+function ReportGenerator:prepare_output_dir()
+    -- Make directory structure to output path
+    utils.force_makepath(config.templates.output_path)
+
+    -- Copy assets
+    local asset_out = pl.path.join(config.templates.output_path, pl.path.basename(config.templates.asset_path))
+    utils.force_makepath(asset_out)
+
+    local root = pl.path.abspath(config.templates.asset_path)
+    for _, file in pairs(pl.dir.getfiles(root)) do
+        local ok = pl.dir.copyfile(file, pl.path.join(asset_out, pl.path.basename(file)))
+        if not ok then
+            log:warn("Failed to copy asset file '%s'.", file)
+        end
+    end
+
+    return true
 end
 
 

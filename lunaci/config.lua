@@ -39,8 +39,8 @@ templates.package_file = path.join(templates.path, "package.html")
 templates.version_file = path.join(templates.path, "version.html")
 
 templates.output_path = path.join(data_dir, "output")
-templates.output_dashboard_file = "index.html"
-templates.output_package_file = "packages/%s/index.html"
-templates.output_version_file = "packages/%s/%s.html"
+templates.output_dashboard = "index.html"
+templates.output_package = "packages/%s/index.html"
+templates.output_version = "packages/%s/%s.html"
 
 templates.package_repo_url = "https://github.com/LuaDist2/%s"

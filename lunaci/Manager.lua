@@ -37,26 +37,24 @@ end
 
 
 function Manager:process_packages()
+    -- Prepare report output dir
+    self.generator:prepare_output_dir()
+
     for name, versions in self:get_packages() do
         log:info("Processing package '%s'", name)
         local worker = Worker(name, versions, self.manifest)
         worker:run(self.targets, self.tasks)
 
+        -- Generate package reports
         self.generator:add_report(name, worker:get_report())
-    end
-end
-
-
-function Manager:generate_reports()
-    self.generator:generate_dashboard()
-
-    for name, versions in self:get_packages() do
         self.generator:generate_package(name)
-
         for version in pl.tablex.sort(versions, utils.sortVersions) do
             self.generator:generate_package_version(name, version)
         end
     end
+
+    -- Generate dashboard report
+    self.generator:generate_dashboard()
 end
 
 

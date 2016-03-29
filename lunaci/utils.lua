@@ -49,3 +49,15 @@ end
 
 
 sortVersions = const.compareVersions
+
+
+-- Make path or die.
+function force_makepath(path)
+    if not pl.path.exists(path) then
+        local ok, err = pl.dir.makepath(path)
+        if not ok then
+            log:error("Cannot create path '%s': %s", path, err)
+            os.exit(1)
+        end
+    end
+end
