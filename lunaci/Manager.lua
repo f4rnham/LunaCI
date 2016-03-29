@@ -11,6 +11,9 @@ local Manager = {}
 Manager.__index = Manager
 setmetatable(Manager, {
 __call = function(self, manifest, targets, generator)
+    pl.utils.assert_arg(1, manifest, "table")
+    pl.utils.assert_arg(2, targets, "table")
+    pl.utils.assert_arg(3, generator, "table")
     local self = setmetatable({}, Manager)
 
     self.manifest = manifest
@@ -25,6 +28,9 @@ end
 
 
 function Manager:add_task(name, func)
+    pl.utils.assert_string(1, name)
+    pl.utils.assert_arg(2, func, "function")
+
     local task = {name = name, call = func}
     table.insert(self.tasks, task)
     self.generator:add_task(task)

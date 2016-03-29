@@ -9,6 +9,8 @@ local const = require "rocksolver.constraints"
 -- Change working directory.
 -- Returns success and previous working directory or failure and error message.
 function change_dir(dir_name)
+    pl.utils.assert_arg(1, dir_name, "string", pl.path.isdir, "is not an existing directory")
+
     local prev_dir, err = pl.path.currentdir()
     if not prev_dir then
         return nil, err

@@ -10,6 +10,7 @@ local PackageReport = {}
 PackageReport.__index = PackageReport
 setmetatable(PackageReport, {
 __call = function(self, name)
+    pl.utils.assert_string(1, name)
     local self = setmetatable({}, PackageReport)
     self.name = name
     self.outputs = {}
@@ -19,6 +20,11 @@ end
 
 
 function PackageReport:add_output(package, target, task, success, output)
+    pl.utils.assert_arg(1, package, "table")
+    pl.utils.assert_string(2, target)
+    pl.utils.assert_arg(3, task, "table")
+    pl.utils.assert_string(5, output)
+
     local version = tostring(package.version)
 
     local outputs = self:get_output_location(package, version, target)
@@ -27,6 +33,10 @@ end
 
 
 function PackageReport:get_output_location(package, version, target)
+    pl.utils.assert_arg(1, package, "table")
+    pl.utils.assert_string(2, version)
+    pl.utils.assert_string(3, target)
+
     if not self.outputs[version] then
         self.outputs[version] = {
             name = package.name,
@@ -47,6 +57,8 @@ function PackageReport:get_output()
 end
 
 function PackageReport:get_version(ver)
+    pl.utils.assert_string(1, ver)
+
     return self.outputs[ver]
 end
 

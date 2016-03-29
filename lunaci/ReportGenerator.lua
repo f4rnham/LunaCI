@@ -25,23 +25,30 @@ end
 
 
 function ReportGenerator:set_targets(targets)
+    pl.utils.assert_arg(1, targets, "table")
     self.targets = targets
 end
 
 
 function ReportGenerator:add_task(task)
+    pl.utils.assert_arg(1, task, "table")
     table.insert(self.tasks, task.name)
 end
 
 
 function ReportGenerator:add_report(package, report)
+    pl.utils.assert_string(1, package)
+    pl.utils.assert_arg(2, report, "table")
     self.reports[package] = report
 end
 
 
 function ReportGenerator:output_file(tpl, env, output_file)
-    tpl = pl.path.abspath(tpl)
     pl.utils.assert_arg(1, tpl, "string", pl.path.exists, "does not exist")
+    pl.utils.assert_arg(2, env, "table")
+    pl.utils.assert_string(3, output_file)
+
+    tpl = pl.path.abspath(tpl)
 
     local tpl_content = pl.file.read(tpl)
     local default_functions = {
@@ -86,6 +93,7 @@ end
 
 
 function ReportGenerator:generate_package(name)
+    pl.utils.assert_string(1, name)
     local tpl_file = config.templates.package_file
     local output_file = pl.path.join(config.templates.output_path, config.templates.output_package:format(name))
 
@@ -100,6 +108,8 @@ end
 
 
 function ReportGenerator:generate_package_version(name, version)
+    pl.utils.assert_string(1, name)
+    pl.utils.assert_string(2, version)
     local tpl_file = config.templates.version_file
     local output_file = pl.path.join(config.templates.output_path, config.templates.output_version:format(name, version))
 

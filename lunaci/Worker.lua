@@ -13,6 +13,9 @@ local Worker = {}
 Worker.__index = Worker
 setmetatable(Worker, {
 __call = function(self, name, versions, manifest)
+    pl.utils.assert_string(1, name)
+    pl.utils.assert_arg(2, versions, "table")
+    pl.utils.assert_arg(3, manifest, "table")
     local self = setmetatable({}, Worker)
 
     self.package_name = name
@@ -26,6 +29,9 @@ end
 
 
 function Worker:run(targets, tasks)
+    pl.utils.assert_arg(1, targets, "table")
+    pl.utils.assert_arg(2, tasks, "table")
+
     for version, spec in pl.tablex.sort(self.package_versions, utils.sortVersions) do
         local package = Package(self.package_name, version, spec)
 
@@ -37,6 +43,10 @@ end
 
 
 function Worker:run_target(package, target, tasks)
+    pl.utils.assert_arg(1, package, "table")
+    pl.utils.assert_string(2, target)
+    pl.utils.assert_arg(3, tasks, "table")
+
     local continue = true
     for _, task in pairs(tasks) do
         if not continue then
