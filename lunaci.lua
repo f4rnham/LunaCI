@@ -38,9 +38,8 @@ local generator = ReportGenerator()
 local manager = Manager(manifest, config.ci_targets, generator)
 
 
-local task_check_deps = require "lunaci.tasks.dependencies"
-manager:add_task("Depends", task_check_deps)
---manager:add_task("Build", function(pkg) return config.STATUS_NA, "Building.", true end)
+manager:add_task("Depends", require "lunaci.tasks.dependencies")
+manager:add_task("Build", require "lunaci.tasks.build")
 
 
 
