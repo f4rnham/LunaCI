@@ -25,7 +25,8 @@ body{padding-top: 50px}
 
 .version .panel-group .panel-heading{cursor:pointer}
 .version pre{margin: 0;background:none;border:none}
-.version pre.panel-body{padding:0 15px;max-height:250px;overflow-y: auto}
+.version pre.panel-body{padding:0 15px;max-height:250px;overflow-y: auto;-webkit-transition:max-height .4s ease;transition:max-height .4s ease}
+.version pre.panel-body.panel-hidden{max-height: 0;}
 
 .version-nav{position: fixed;top:190px;width: 160px;}
 
