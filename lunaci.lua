@@ -40,6 +40,7 @@ local manager = Manager(manifest, config.ci_targets, generator)
 
 manager:add_task("Depends", require "lunaci.tasks.dependencies")
 manager:add_task("Build", require "lunaci.tasks.build")
+manager:add_task("Require", require "lunaci.tasks.require")
 
 
 
