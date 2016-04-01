@@ -47,13 +47,13 @@
                     <th class="pkg" rowspan="2">Package</th>
                     <th class="ver" rowspan="2">Latest version</th>
 # for _, target in sort(targets) do
-                    <th colspan="$(#tasks)">$(ucfirst(target))</th>
+                    <th colspan="$(#tasks)">$(e(ucfirst(target)))</th>
 # end
                 </tr>
                 <tr>
 # for _ in sort(targets) do
 #   for _, task in sort(tasks) do
-                    <td>$(task)</td>
+                    <td>$(e(task))</td>
 #   end
 # end
                 </tr>
@@ -63,8 +63,8 @@
 # for package_name, report in sort(packages) do
 #   local latest_package = report:get_latest()
                 <tr>
-                    <td class="pkg link"><a href="packages/$(package_name)/">$(package_name)</a></td>
-                    <td class="ver">$(latest_package.version)</td>
+                    <td class="pkg link"><a href="packages/$(urlsafe(package_name))/">$(e(package_name))</a></td>
+                    <td class="ver">$(e(latest_package.version))</td>
 #   for _, target in sort(latest_package.targets) do
 #       for _, task in pairs(target) do
                     <td class="q $(result2class(task.success))">$(result2msg(task.success))</td>

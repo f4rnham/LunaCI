@@ -5,8 +5,8 @@ math.randomseed(os.time())
 local require_modules = function(package, target, manifest)
     err_msg = ([[
 Trying to require modules from package %s...
-Error: Something wrong happend.<"'&'">
-This is just a placeholder text here to make it longer. <>
+Error: Something wrong happend.
+This is just a placeholder text here to make it longer.
 ]]):format(tostring(package))
 
     succ_msg = ([[

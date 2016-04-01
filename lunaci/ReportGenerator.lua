@@ -52,13 +52,14 @@ function ReportGenerator:output_file(tpl, env, output_file)
 
     local tpl_content = pl.file.read(tpl)
     local default_functions = {
+        e = utils.escape_html,
+        urlsafe = utils.escape_urlsafe,
         pairs = pairs,
         sort = pl.tablex.sort,
-        sort_version = function(i) return pl.tablex.sort(i, utils.sortVersions) end,
-        result2class = function(s) return (s and 'success' or (s == nil and 'warning' or 'danger')) end,
-        result2msg = function(s) return (s and 'OK' or (s == nil and 'N/A' or 'Fail')) end,
         ucfirst = function(s) return (s:gsub("^%l", string.upper)) end,
         date = os.date,
+        result2class = function(s) return (s and 'success' or (s == nil and 'warning' or 'danger')) end,
+        result2msg = function(s) return (s and 'OK' or (s == nil and 'N/A' or 'Fail')) end,
     }
 
     local vars = pl.tablex.merge(env, default_functions, true)
@@ -94,8 +95,9 @@ end
 
 function ReportGenerator:generate_package(name)
     pl.utils.assert_string(1, name)
+    local safename = utils.escape_urlsafe(name)
     local tpl_file = config.templates.package_file
-    local output_file = pl.path.join(config.templates.output_path, config.templates.output_package:format(name))
+    local output_file = pl.path.join(config.templates.output_path, config.templates.output_package:format(safename))
 
     local env = {
         targets = self.targets,
@@ -110,8 +112,10 @@ end
 function ReportGenerator:generate_package_version(name, version)
     pl.utils.assert_string(1, name)
     pl.utils.assert_string(2, version)
+    local safename = utils.escape_urlsafe(name)
+    local safeversion = utils.escape_urlsafe(version)
     local tpl_file = config.templates.version_file
-    local output_file = pl.path.join(config.templates.output_path, config.templates.output_version:format(name, version))
+    local output_file = pl.path.join(config.templates.output_path, config.templates.output_version:format(safename, safeversion))
 
     local env = {
         targets = self.targets,

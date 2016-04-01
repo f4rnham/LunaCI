@@ -63,3 +63,13 @@ function force_makepath(path)
         end
     end
 end
+
+
+function escape_urlsafe(str)
+    return str:gsub("[^a-z0-9_.]+", '-')
+end
+
+
+function escape_html(str)
+    return str:find("[<>&'\"]") and str:gsub("&", "&amp;"):gsub("<", "&lt;"):gsub(">", "&gt;"):gsub("'", "&#39;"):gsub("\"", "&quot;") or str
+end

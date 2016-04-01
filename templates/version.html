@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Package: $(package.name) $(package.version) | LunaCI - LuaDist CI Environment</title>
+    <title>Package: $(e(package.name)) $(e(package.version)) | LunaCI - LuaDist CI Environment</title>
     <link rel="stylesheet" href="/assets/bootstrap.min.css">
     <link rel="stylesheet" href="/assets/style.css">
 </head>
@@ -19,7 +19,7 @@
     <div class="container">
 
         <div class="page-header">
-            <h1>Package: <a href="./">$(package.name)</a> $(package.version)</h1>
+            <h1>Package: <a href="./">$(e(package.name))</a> $(e(package.version))</h1>
         </div>
 
 # --        <div class="package-info">
@@ -30,12 +30,12 @@
 
 # for target, tasks in sort(package.targets) do
         <div class="target panel-group">
-            <h2>$(ucfirst(target))</h2>
+            <h2>$(e(ucfirst(target)))</h2>
 
 #   for _, task in pairs(tasks) do
             <div class="panel panel-$(result2class(task.success))">
-                <div class="panel-heading">$(task.name)</div>
-                <pre class="panel-body">$(task.output)</pre>
+                <div class="panel-heading">$(e(task.name))</div>
+                <pre class="panel-body">$(e(task.output))</pre>
             </div>
 #   end
         </div>
