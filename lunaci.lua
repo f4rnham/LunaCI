@@ -9,33 +9,9 @@ local ReportGenerator = require "lunaci.ReportGenerator"
 local pl = require "pl.import_into"()
 
 
-function fetch_manifest()
-    log:info("Fetching manifest")
-
-    if pl.path.exists(config.manifest.file) then
-        return pl.pretty.read(pl.file.read(config.manifest.file))
-    end
-
-    local ok, err = utils.git_clone(config.manifest.repo, config.manifest.path)
-    if not ok then return nil, err end
-
-    if not pl.path.exists(config.manifest.file) then
-        return nil, "Manifest file '" .. config.manifest.file .. "' not found."
-    end
-
-    return pl.pretty.read(pl.file.read(config.manifest.file))
-end
-
-
-
---local manifest, err = fetch_manifest()
-local manifest = pl.pretty.read(pl.file.read(config.manifest.file))
-if not manifest then
-    error(err)
-end
 
 local generator = ReportGenerator()
-local manager = Manager(manifest, config.ci_targets, generator)
+local manager = Manager(config.ci_targets, generator)
 
 
 manager:add_task("Depends", require "lunaci.tasks.dependencies")

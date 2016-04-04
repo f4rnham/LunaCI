@@ -2,6 +2,7 @@ module("lunaci.Manager", package.seeall)
 
 local log = require "lunaci.log"
 local utils = require "lunaci.utils"
+local config = require "lunaci.config"
 local Worker = require "lunaci.Worker"
 
 local pl = require "pl.import_into"()
@@ -10,13 +11,11 @@ local pl = require "pl.import_into"()
 local Manager = {}
 Manager.__index = Manager
 setmetatable(Manager, {
-__call = function(self, manifest, targets, generator)
-    pl.utils.assert_arg(1, manifest, "table")
+__call = function(self, targets, generator)
     pl.utils.assert_arg(2, targets, "table")
     pl.utils.assert_arg(3, generator, "table")
     local self = setmetatable({}, Manager)
 
-    self.manifest = manifest
     self.targets = targets or {}
     self.tasks = {}
     self.generator = generator
@@ -25,6 +24,45 @@ __call = function(self, manifest, targets, generator)
     return self
 end
 })
+
+
+function Manager:fetch_manifest()
+    log:info("Fetching manifest")
+
+    if pl.path.exists(config.manifest.file) then
+        return pl.pretty.read(pl.file.read(config.manifest.file))
+    end
+
+    local ok, err = utils.git_clone(config.manifest.repo, config.manifest.path)
+    if not ok then return nil, err end
+
+    if not pl.path.exists(config.manifest.file) then
+        return nil, "Manifest file '" .. config.manifest.file .. "' not found."
+    end
+
+    return pl.pretty.read(pl.file.read(config.manifest.file))
+end
+
+
+function Manager:get_manifest()
+    if self.manifest then
+        return self.manifest
+    end
+    self.manifest = self:fetch_manifest()
+    return self.manifest
+end
+
+
+function Manager:get_last_manifest()
+    if self.last_manifest then
+        return self.last_manifest
+    end
+    if pl.path.exists(config.manifest.last_file) then
+        self.last_manifest = pl.pretty.read(pl.file.read(config.manifest.last_file))
+        return self.last_manifest
+    end
+    return nil
+end
 
 
 function Manager:add_task(name, func)
@@ -43,6 +81,9 @@ end
 
 
 function Manager:process_packages()
+    --TODO move elsewhere
+    self:get_manifest()
+
     -- Prepare report output dir
     self.generator:prepare_output_dir()
 
@@ -61,6 +102,10 @@ function Manager:process_packages()
 
     -- Generate dashboard report
     self.generator:generate_dashboard()
+
+
+    -- TODO move elsewhere
+    pl.file.write(pl.path.abspath(config.manifest.last_file), pl.pretty.write(self.manifest))
 end
 
 
