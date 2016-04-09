@@ -80,23 +80,48 @@ function Manager:get_packages()
 end
 
 
+-- TODO instead of all, return only new versions.
+function Manager:package_changed(name)
+    if not self.last_manifest then
+        return self.manifest.packages[name]
+    end
+    local current = self.manifest.packages[name]
+    local last = self.last_manifest.packages[name]
+
+    if pl.tablex.deepcompare(current, last) then
+        return nil
+    end
+    return current
+end
+
+
 function Manager:process_packages()
     --TODO move elsewhere
     self:get_manifest()
+    self:get_last_manifest()
 
     -- Prepare report output dir
     self.generator:prepare_output_dir()
 
-    for name, versions in self:get_packages() do
+    for name in self:get_packages() do
         log:info("Processing package '%s'", name)
-        local worker = Worker(name, versions, self.manifest)
-        worker:run(self.targets, self.tasks)
+        local versions = self:package_changed(name)
+        if not versions then
+            log:debug("No changes in package '%s'", name)
+        else
+            local worker = Worker(name, versions, self.manifest)
+            log:debug("New versions for package '%s':", name)
+            for v in pairs(versions) do
+                log:debug("- %s", v)
+            end
+            worker:run(self.targets, self.tasks)
 
-        -- Generate package reports
-        self.generator:add_report(name, worker:get_report())
-        self.generator:generate_package(name)
-        for version in pl.tablex.sort(versions, utils.sortVersions) do
-            self.generator:generate_package_version(name, version)
+            -- Generate package reports
+            self.generator:add_report(name, worker:get_report())
+            for version in pl.tablex.sort(versions, utils.sortVersions) do
+                self.generator:generate_package_version(name, version)
+            end
+            self.generator:generate_package(name)
         end
     end
 

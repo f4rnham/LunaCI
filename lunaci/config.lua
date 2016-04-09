@@ -15,7 +15,7 @@ manifest.last_file = path.join(data_dir, "manifest.last")
 
 logging = {}
 logging.output = "console"
-logging.level = log.INFO
+logging.level = log.DEBUG
 logging.file = path.join(data_dir, "logs/lunaci-%s.log")
 logging.date_format = "%Y-%m-%d"
 
