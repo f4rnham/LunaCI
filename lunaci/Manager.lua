@@ -80,7 +80,6 @@ function Manager:get_packages()
 end
 
 
--- TODO instead of all, return only new versions.
 function Manager:package_changed(name)
     if not self.last_manifest then
         return self.manifest.packages[name]
@@ -91,7 +90,7 @@ function Manager:package_changed(name)
     if pl.tablex.deepcompare(current, last) then
         return nil
     end
-    return current
+    return pl.tablex.difference(current, last)
 end
 
 
@@ -106,6 +105,7 @@ function Manager:process_packages()
     for name in self:get_packages() do
         log:info("Processing package '%s'", name)
         local versions = self:package_changed(name)
+        pl.pretty.dump(versions)
         if not versions then
             log:debug("No changes in package '%s'", name)
         else
@@ -130,7 +130,7 @@ function Manager:process_packages()
 
 
     -- TODO move elsewhere
-    pl.file.write(pl.path.abspath(config.manifest.last_file), pl.pretty.write(self.manifest))
+    --pl.file.write(pl.path.abspath(config.manifest.last_file), pl.pretty.write(self.manifest))
 end
 
 
