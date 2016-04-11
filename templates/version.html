@@ -33,8 +33,8 @@
             <h2>$(e(ucfirst(target)))</h2>
 
 #   for _, task in pairs(tasks) do
-            <div class="panel panel-$(task.success.class)">
-                <div class="panel-heading">$(e(task.name)) &ndash; $(task.success.msg)</div>
+            <div class="panel panel-$(e(task.success.class))">
+                <div class="panel-heading">$(e(task.name)) &ndash; $(e(task.success.msg))</div>
                 <pre class="panel-body">$(e(task.output))</pre>
             </div>
 #   end
