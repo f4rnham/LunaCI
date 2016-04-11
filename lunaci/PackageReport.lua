@@ -42,7 +42,7 @@ function PackageReport:get_output_location(package, version, target)
             name = package.name,
             version = tostring(package.version),
             package = package,
-            -- timestamp = os.time(),
+            timestamp = os.time(),
             targets = {}
         }
     end
@@ -53,7 +53,7 @@ function PackageReport:get_output_location(package, version, target)
 end
 
 function PackageReport:get_output()
-    return pl.tablex.sort(self.outputs, utils.sortVersions)
+    return self.outputs
 end
 
 function PackageReport:get_version(ver)
@@ -63,13 +63,14 @@ function PackageReport:get_version(ver)
 end
 
 function PackageReport:get_latest()
-    local version
-    for _, ver in self:get_output() do
+    local output, version
+    for ver, out in pl.tablex.sort(self:get_output(), utils.sortVersions) do
+        output = out
         version = ver
         break
     end
 
-    return version
+    return output, version
 end
 
 

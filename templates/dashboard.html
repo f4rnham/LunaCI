@@ -60,12 +60,11 @@
             </thead>
 
             <tbody>
-# for package_name, report in sort(packages) do
-#   local latest_package = report:get_latest()
+# for _, package in packages do
                 <tr>
-                    <td class="pkg link"><a href="packages/$(urlsafe(package_name))/">$(e(package_name))</a></td>
-                    <td class="ver">$(e(latest_package.version))</td>
-#   for _, target in sort(latest_package.targets) do
+                    <td class="pkg link"><a href="packages/$(urlsafe(package.name))/">$(e(package.name))</a></td>
+                    <td class="ver">$(e(package.version))</td>
+#   for _, target in sort(package.targets) do
 #       for _, task in pairs(target) do
                     <td class="q $(result2class(task.success))">$(result2msg(task.success))</td>
 #       end

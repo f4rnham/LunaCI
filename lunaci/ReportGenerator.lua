@@ -5,19 +5,21 @@ local utils = require "lunaci.utils"
 local config = require "lunaci.config"
 
 local pl = require "pl.import_into"()
-local pl_template = require "pl.template"
-
+local plsort = pl.tablex.sort
 
 
 local ReportGenerator = {}
 ReportGenerator.__index = ReportGenerator
 setmetatable(ReportGenerator, {
-__call = function(self)
+__call = function(self, cache)
+    pl.utils.assert_arg(2, cache, "table")
     local self = setmetatable({}, ReportGenerator)
 
     self.reports = {}
     self.targets = {}
     self.tasks = {}
+
+    self.cache = cache
 
     return self
 end
@@ -55,7 +57,7 @@ function ReportGenerator:output_file(tpl, env, output_file)
         e = utils.escape_html,
         urlsafe = utils.escape_urlsafe,
         pairs = pairs,
-        sort = pl.tablex.sort,
+        sort = plsort,
         ucfirst = function(s) return (s:gsub("^%l", string.upper)) end,
         date = os.date,
         result2class = function(s) return (s and 'success' or (s == nil and 'warning' or 'danger')) end,
@@ -63,6 +65,7 @@ function ReportGenerator:output_file(tpl, env, output_file)
     }
 
     local vars = pl.tablex.merge(env, default_functions, true)
+    local pl_template = require "pl.template"
 
     local tpl_output, err = pl_template.substitute(tpl_content, vars)
 
@@ -79,15 +82,16 @@ function ReportGenerator:generate_dashboard()
     local tpl_file = config.templates.dashboard_file
     local output_file = pl.path.join(config.templates.output_path, config.templates.output_dashboard)
 
+    local packages, count = self:get_packages_latest()
     local env = {
         stats = {
-            packages = pl.tablex.size(self.reports),
+            packages = count,
             -- passing = 72,
             -- failing = 28,
         },
         targets = self.targets,
         tasks = self.tasks,
-        packages = self.reports
+        packages = packages
     }
     return self:output_file(tpl_file, env, output_file)
 end
@@ -102,7 +106,8 @@ function ReportGenerator:generate_package(name)
     local env = {
         targets = self.targets,
         tasks = self.tasks,
-        package = self.reports[name],
+        package_name = name,
+        package_output = self:get_package_outputs(name),
     }
     utils.force_makepath(pl.path.dirname(output_file))
     return self:output_file(tpl_file, env, output_file)
@@ -146,6 +151,25 @@ function ReportGenerator:prepare_output_dir()
     return true
 end
 
+
+function ReportGenerator:get_package_outputs(name)
+    local cached = self.cache:get_report(name) or {}
+    local new = self.reports[name]:get_output()
+    local merged = pl.tablex.merge(cached, new, true)
+    return plsort(merged, utils.sortVersions)
+end
+
+
+function ReportGenerator:get_packages_latest()
+    local cached = self.cache:get_latest() or {}
+    local new = {}
+
+    for name, report in pairs(self.reports) do
+        new[name] = report:get_latest()
+    end
+    local merged = pl.tablex.merge(cached, new, true)
+    return plsort(merged), pl.tablex.size(merged)
+end
 
 
 return ReportGenerator

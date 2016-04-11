@@ -1,0 +1,130 @@
+module("lunaci.Cache", package.seeall)
+
+local log = require "lunaci.log"
+local config = require "lunaci.config"
+
+local pl = require "pl.import_into"()
+
+
+local Cache = {}
+Cache.__index = Cache
+setmetatable(Cache, {
+__call = function(self)
+    local self = setmetatable({}, Cache)
+
+    self.manifest = nil
+    self.targets = {}
+    self.tasks = {}
+    self.reports = {}
+    self.latest = {}
+
+    return self
+end
+})
+
+
+function Cache:load_cache()
+    if pl.path.exists(config.cache.manifest) then
+        self.manifest = pl.pretty.read(pl.file.read(config.cache.manifest)) or nil
+    end
+
+    if pl.path.exists(config.cache.reports) then
+        local out = pl.pretty.read(pl.file.read(config.cache.reports)) or {}
+        if out.targets then
+            self.targets = out.targets
+        end
+        if out.tasks then
+            self.tasks = out.tasks
+        end
+        if out.reports then
+            self.reports = out.reports
+        end
+        if out.latest then
+            self.latest = out.latest
+        end
+    end
+end
+
+
+function Cache:persist_cache()
+    if not pl.path.exists(config.cache.path) then
+        local ok, err = pl.dir.makepath(config.cache.path)
+        if not ok then
+            error("Could not create cache directory: " .. err)
+        end
+    end
+    pl.file.write(config.cache.manifest, pl.pretty.write(self.manifest, ''))
+
+    local reports = {
+        targets = self.targets or {},
+        tasks = self.tasks or {},
+        reports = self.reports or {},
+        latest = self.latest or {},
+    }
+    pl.file.write(config.cache.reports, pl.pretty.write(reports, ''))
+end
+
+
+function Cache:set_manifest(manifest)
+    self.manifest = manifest
+end
+
+
+function Cache:set_targets(targets)
+    -- noop at this point
+end
+
+
+function Cache:add_task(task)
+    -- noop at this point
+end
+
+
+function Cache:add_report(name, report)
+    local _, ver = report:get_latest()
+    if ver then
+        self.latest[name] = ver
+    end
+    local output = pl.tablex.deepcopy(report:get_output())
+
+    -- Remove task outputs
+    for _, out in pairs(output) do
+        out.package = nil
+        for _, target in pairs(out.targets) do
+            for _, task in pairs(target) do
+                task.output = nil
+            end
+        end
+    end
+    if not self.reports[name] then
+        self.reports[name] = output
+    else
+        for ver, out in pairs(output) do
+            self.reports[name][ver] = out
+        end
+    end
+end
+
+
+function Cache:get_report(name)
+    return self.reports[name]
+end
+
+
+function Cache:get_version(name, ver)
+    return self.reports[name] and self.reports[name][ver] or nil
+end
+
+
+function Cache:get_latest()
+    local reports = {}
+    for name, report in pairs(self.reports) do
+        local latest = self.latest[name]
+        reports[name] = self.reports[name][latest]
+    end
+
+    return reports
+end
+
+
+return Cache

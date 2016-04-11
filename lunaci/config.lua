@@ -9,9 +9,12 @@ data_dir = path.abspath("data")
 manifest = {}
 manifest.repo = "https://gist.github.com/efe9312e64d0e492282e.git"
 manifest.path = path.join(data_dir, "manifest-repo")
-manifest.file = path.join(manifest.path, "manifest-file.test")
-manifest.last_file = path.join(data_dir, "manifest.last")
+manifest.file = path.join(manifest.path, "manifest-file")
 
+cache = {}
+cache.path = path.join(data_dir, "cache")
+cache.manifest = path.join(cache.path, "manifest.cache")
+cache.reports = path.join(cache.path, "reports.cache")
 
 logging = {}
 logging.output = "console"
