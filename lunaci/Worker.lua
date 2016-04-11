@@ -2,6 +2,7 @@ module("lunaci.Worker", package.seeall)
 
 local log = require "lunaci.log"
 local utils = require "lunaci.utils"
+local config = require "lunaci.config"
 local PackageReport = require "lunaci.PackageReport"
 
 local Package = require "rocksolver.Package"
@@ -50,7 +51,7 @@ function Worker:run_target(package, target, tasks)
     local continue = true
     for _, task in pairs(tasks) do
         if not continue then
-            self.report:add_output(package, target, task, nil, "Task chain ended.")
+            self.report:add_output(package, target, task, config.STATUS_NA, "Task chain ended.")
         else
             local ok, success, output, cont = pcall(task.call, package, target, self.manifest)
 
@@ -66,7 +67,7 @@ function Worker:run_target(package, target, tasks)
                 -- Runtime error while running the task
                 local msg = "Error running task: " .. success -- success contains lua error message
                 log:error(msg)
-                self.report:add_output(package, target, task, nil, msg)
+                self.report:add_output(package, target, task, config.STATUS_INT, msg)
             end
         end
     end

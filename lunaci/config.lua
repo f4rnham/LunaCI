@@ -3,13 +3,17 @@ module("lunaci.config", package.seeall)
 local path = require "pl.path"
 local log = require "logging"
 
+local function status(s)
+    return {title = s[1], msg = s[2], class = s[3]}
+end
+
 data_dir = path.abspath("data")
 
 
 manifest = {}
 manifest.repo = "https://gist.github.com/efe9312e64d0e492282e.git"
 manifest.path = path.join(data_dir, "manifest-repo")
-manifest.file = path.join(manifest.path, "manifest-file")
+manifest.file = path.join(manifest.path, "manifest-file.test")
 
 cache = {}
 cache.path = path.join(data_dir, "cache")
@@ -29,6 +33,11 @@ ci_targets = {
     "lua 5.3",
 }
 
+
+STATUS_OK   = status{"OK", "Success", "success"}
+STATUS_FAIL = status{"Fail", "Failure", "danger"}
+STATUS_NA   = status{"N/A", "Not applicable", "info"}
+STATUS_INT  = status{"Internal", "Internal tooling error", "warning"}
 
 
 platform = {"unix", "linux"}

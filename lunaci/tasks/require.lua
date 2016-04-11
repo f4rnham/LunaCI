@@ -3,6 +3,7 @@ module("lunaci.tasks.require", package.seeall)
 math.randomseed(os.time())
 
 local require_modules = function(package, target, manifest)
+    local config = require "lunaci.config"
     err_msg = ([[
 Trying to require modules from package %s...
 Error: Something wrong happend.
@@ -18,9 +19,9 @@ Require test successful.
 
     rand = math.random(10)
     if rand < 4 then
-        return false, err_msg, false
+        return config.STATUS_FAIL, err_msg, false
     else
-        return true, succ_msg, true
+        return config.STATUS_OK, succ_msg, true
     end
 
 end

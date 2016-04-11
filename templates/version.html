@@ -22,19 +22,19 @@
             <h1>Package: <a href="./">$(e(package.name))</a> $(e(package.version))</h1>
         </div>
 
-# --        <div class="package-info">
-# --            <ul>
-# --                <li>Timestamp: $ (date("%d. %m. %Y, %H:%M:%S", package.timestamp))</li>
-# --            </ul>
-# --        </div>
+        <div class="package-info">
+            <ul>
+                <li>Timestamp: $(date("%d. %m. %Y, %H:%M:%S", package.timestamp))</li>
+            </ul>
+        </div>
 
 # for target, tasks in sort(package.targets) do
         <div class="target panel-group">
             <h2>$(e(ucfirst(target)))</h2>
 
 #   for _, task in pairs(tasks) do
-            <div class="panel panel-$(result2class(task.success))">
-                <div class="panel-heading">$(e(task.name))</div>
+            <div class="panel panel-$(task.success.class)">
+                <div class="panel-heading">$(e(task.name)) &ndash; $(task.success.msg)</div>
                 <pre class="panel-body">$(e(task.output))</pre>
             </div>
 #   end

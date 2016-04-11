@@ -16,7 +16,7 @@ local check_package_dependencies = function(package, target, manifest)
     local deps, err = solver:resolve_dependencies(tostring(package))
 
     if err then
-        return false, "Error resolving dependencies for package " .. tostring(package) .. ":\n" .. err, false
+        return config.STATUS_FAIL, "Error resolving dependencies for package " .. tostring(package) .. ":\n" .. err, false
     end
 
     local has_deps = false
@@ -32,7 +32,7 @@ local check_package_dependencies = function(package, target, manifest)
         out = out .. "None"
     end
 
-    return true, out, true
+    return config.STATUS_OK, out, true
 end
 
 

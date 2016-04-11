@@ -3,6 +3,7 @@ module("lunaci.tasks.build", package.seeall)
 math.randomseed(os.time())
 
 local build_package = function(package, target, manifest)
+    local config = require "lunaci.config"
     err_msg = ([[
 Building package %s...
 Error building: Something wrong happend.
@@ -22,10 +23,12 @@ Package build successful.
 ]]):format(tostring(package))
 
     rand = math.random(10)
-    if rand < 4 then
-        return false, err_msg, false
+    if rand <= 3 then
+        return config.STATUS_FAIL, err_msg, false
+    elseif rand < 5 then
+        return config.STATUS_INT, err_msg, false
     else
-        return true, succ_msg, true
+        return config.STATUS_OK, succ_msg, true
     end
 
 end

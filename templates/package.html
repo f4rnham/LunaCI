@@ -48,7 +48,7 @@
                     <td class="date">$(date("%d. %m. %Y, %H:%M:%S", output.timestamp))</td>
 #   for _, target in sort(output.targets) do
 #       for _, task in pairs(target) do
-                    <td class="q $(result2class(task.success))">$(result2msg(task.success))</td>
+                    <td class="q $(task.success.class)">$(task.success.title)</td>
 #       end
 #   end
                 </tr>

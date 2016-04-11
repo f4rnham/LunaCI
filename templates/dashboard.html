@@ -66,7 +66,7 @@
                     <td class="ver">$(e(package.version))</td>
 #   for _, target in sort(package.targets) do
 #       for _, task in pairs(target) do
-                    <td class="q $(result2class(task.success))">$(result2msg(task.success))</td>
+                    <td class="q $(task.success.class)">$(task.success.title)</td>
 #       end
 #   end
                 </tr>

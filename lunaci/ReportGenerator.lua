@@ -60,8 +60,6 @@ function ReportGenerator:output_file(tpl, env, output_file)
         sort = plsort,
         ucfirst = function(s) return (s:gsub("^%l", string.upper)) end,
         date = os.date,
-        result2class = function(s) return (s and 'success' or (s == nil and 'warning' or 'danger')) end,
-        result2msg = function(s) return (s and 'OK' or (s == nil and 'N/A' or 'Fail')) end,
     }
 
     local vars = pl.tablex.merge(env, default_functions, true)
