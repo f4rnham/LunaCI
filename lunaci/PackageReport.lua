@@ -61,11 +61,6 @@ function PackageReport:get_output_location(package, version, target)
     end
 
     return self.outputs[version].targets[idx].tasks
-
-    -- if not self.outputs[version].targets[target] then
-    --     self.outputs[version].targets[target] = {}
-    -- end
-    -- return self.outputs[version].targets[target]
 end
 
 function PackageReport:get_output()
