@@ -13,7 +13,7 @@ local pl = require "pl.import_into"()
 
 local cache = Cache()
 local generator = ReportGenerator(cache)
-local manager = Manager(config.ci_targets, generator, cache)
+local manager = Manager(config.targets, generator, cache)
 
 
 manager:add_task("Depends", require "lunaci.tasks.dependencies")

@@ -2,6 +2,8 @@ module("lunaci.tasks.require", package.seeall)
 
 math.randomseed(os.time())
 
+
+-- Dummy random placeholder task implementation.
 local require_modules = function(package, target, manifest)
     local config = require "lunaci.config"
     err_msg = ([[

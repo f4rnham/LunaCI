@@ -34,6 +34,8 @@ end
 })
 
 
+-- Fetch manifest from git manifest repo
+-- TODO run git pull
 function Manager:fetch_manifest()
     log:info("Fetching manifest")
 
@@ -52,6 +54,7 @@ function Manager:fetch_manifest()
 end
 
 
+-- Returns manifest, fetching it if not yet loaded.
 function Manager:get_manifest()
     if self.manifest then
         return self.manifest
@@ -61,6 +64,9 @@ function Manager:get_manifest()
 end
 
 
+-- Add a new task definition to LunaCI.
+-- Task should be a function/callable taking three arguments:
+-- Package instance, target definition and the current manifest.
 function Manager:add_task(name, func)
     pl.utils.assert_string(1, name)
     pl.utils.assert_arg(2, func, "function")
@@ -71,11 +77,14 @@ function Manager:add_task(name, func)
 end
 
 
+-- Get all packages sorted alphabetically. Returns an interator.
 function Manager:get_packages()
     return plsort(self.manifest.packages)
 end
 
 
+-- Check if a package in a given version has some new/updated dependencies
+-- since the last cached manifest.
 function Manager:has_new_dependencies(name, ver)
     pkg = Package(name, ver, self.manifest.packages[name][ver])
     local deps = pkg:dependencies(config.platform)
@@ -92,12 +101,17 @@ function Manager:has_new_dependencies(name, ver)
 end
 
 
+-- Cache for new/updated versions of packages
 local changed_version_cache = {}
 setmetatable(changed_version_cache, {
     __mode = "kv"
 })
 
 
+-- Returns a list of new or updated versions for a given package
+-- since the last cached manifest. A package version is considered updated,
+-- if any of its dependencies have been updated.
+-- Results of this function are cached for increased performance.
 function Manager:get_changed_versions(name)
     if changed_version_cache[name] then
         return changed_version_cache[name]
@@ -122,6 +136,8 @@ function Manager:get_changed_versions(name)
 end
 
 
+-- Process all the packages in the manifest - run all tasks on all targets
+-- and generate reports and dashobards.
 function Manager:process_packages()
     --TODO move elsewhere
     self:get_manifest()
@@ -161,10 +177,7 @@ function Manager:process_packages()
     end
     self.cache:set_manifest(self.manifest)
 
-
-
     self.cache:persist_cache()
-    --pl.file.write(pl.path.abspath(config.manifest.last_file), pl.pretty.write(self.manifest))
 end
 
 

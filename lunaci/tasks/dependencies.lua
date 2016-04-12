@@ -1,6 +1,7 @@
 module("lunaci.tasks.dependencies", package.seeall)
 
 
+-- Dependency resolving task.
 local check_package_dependencies = function(package, target, manifest)
     local config = require "lunaci.config"
     local pl = require "pl.import_into"()
@@ -21,6 +22,7 @@ local check_package_dependencies = function(package, target, manifest)
     local has_deps = false
     local out = "Resolved dependencies for package " .. tostring(package) .. ": "
     for _, dep in pairs(deps) do
+        -- Do not print self as a dependency
         if dep ~= package then
             out = out .. "\n- " .. tostring(dep)
             has_deps = true

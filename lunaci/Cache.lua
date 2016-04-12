@@ -23,11 +23,14 @@ end
 })
 
 
+-- Load cache from files.
 function Cache:load_cache()
+    -- Load manifest cache
     if pl.path.exists(config.cache.manifest) then
         self.manifest = pl.pretty.read(pl.file.read(config.cache.manifest)) or nil
     end
 
+    -- Load reports cache
     if pl.path.exists(config.cache.reports) then
         local out = pl.pretty.read(pl.file.read(config.cache.reports)) or {}
         if out.targets then
@@ -46,13 +49,16 @@ function Cache:load_cache()
 end
 
 
+-- Save cache to file
 function Cache:persist_cache()
+    -- Create cache directory if doesn't exist
     if not pl.path.exists(config.cache.path) then
         local ok, err = pl.dir.makepath(config.cache.path)
         if not ok then
             error("Could not create cache directory: " .. err)
         end
     end
+
     pl.file.write(config.cache.manifest, pl.pretty.write(self.manifest, ''))
 
     local reports = {
@@ -70,24 +76,28 @@ function Cache:set_manifest(manifest)
 end
 
 
+-- TODO
 function Cache:set_targets(targets)
     -- noop at this point
 end
 
 
+-- TODO
 function Cache:add_task(task)
     -- noop at this point
 end
 
 
+-- Add report output to cache
 function Cache:add_report(name, report)
+    -- Add latest package version string
     local _, ver = report:get_latest()
     if ver then
         self.latest[name] = ver
     end
     local output = pl.tablex.deepcopy(report:get_output())
 
-    -- Remove task outputs
+    -- Remove full task outputs, leave only summaries
     for _, out in pairs(output) do
         out.package = nil
         for _, target in pairs(out.targets) do
@@ -116,6 +126,7 @@ function Cache:get_version(name, ver)
 end
 
 
+-- Get latest versions reports
 function Cache:get_latest()
     local reports = {}
     for name, report in pairs(self.reports) do

@@ -26,18 +26,21 @@ end
 })
 
 
+-- Set targets for the report generator.
 function ReportGenerator:set_targets(targets)
     pl.utils.assert_arg(1, targets, "table")
     self.targets = targets
 end
 
 
+-- Add a task to the report generator. Only tasks name is used.
 function ReportGenerator:add_task(task)
     pl.utils.assert_arg(1, task, "table")
     table.insert(self.tasks, task.name)
 end
 
 
+-- Add a PackageReport to the report generator.
 function ReportGenerator:add_report(package, report)
     pl.utils.assert_string(1, package)
     pl.utils.assert_arg(2, report, "table")
@@ -45,6 +48,7 @@ function ReportGenerator:add_report(package, report)
 end
 
 
+-- Output a template substituded with a given environment to the output file.
 function ReportGenerator:output_file(tpl, env, output_file)
     pl.utils.assert_arg(1, tpl, "string", pl.path.exists, "does not exist")
     pl.utils.assert_arg(2, env, "table")
@@ -58,7 +62,6 @@ function ReportGenerator:output_file(tpl, env, output_file)
         urlsafe = utils.escape_urlsafe,
         pairs = pairs,
         sort = plsort,
-        ucfirst = function(s) return (s:gsub("^%l", string.upper)) end,
         date = os.date,
     }
 
@@ -76,6 +79,8 @@ function ReportGenerator:output_file(tpl, env, output_file)
 end
 
 
+-- Generate report dashboard with a table of all the packages and outputs
+-- for their latest versions.
 function ReportGenerator:generate_dashboard()
     local tpl_file = config.templates.dashboard_file
     local output_file = pl.path.join(config.templates.output_path, config.templates.output_dashboard)
@@ -95,6 +100,7 @@ function ReportGenerator:generate_dashboard()
 end
 
 
+-- Generate a package index with a table of outputs for all its versions.
 function ReportGenerator:generate_package(name)
     pl.utils.assert_string(1, name)
     local safename = utils.escape_urlsafe(name)
@@ -112,6 +118,7 @@ function ReportGenerator:generate_package(name)
 end
 
 
+-- Generate a report for a specific package version
 function ReportGenerator:generate_package_version(name, version)
     pl.utils.assert_string(1, name)
     pl.utils.assert_string(2, version)
@@ -130,6 +137,7 @@ function ReportGenerator:generate_package_version(name, version)
 end
 
 
+-- Prepare output directory structure and copy static assets
 function ReportGenerator:prepare_output_dir()
     -- Make directory structure to output path
     utils.force_makepath(config.templates.output_path)
@@ -150,6 +158,8 @@ function ReportGenerator:prepare_output_dir()
 end
 
 
+-- Returns sorted version reports for a given package name.
+-- Merges new reports with the ones cached form previous runs.
 function ReportGenerator:get_package_outputs(name)
     local cached = self.cache:get_report(name) or {}
     local new = self.reports[name]:get_output()
@@ -158,6 +168,8 @@ function ReportGenerator:get_package_outputs(name)
 end
 
 
+-- Returns sorted reports for the latest versions of all the packages.
+-- Merges new reports with the ones cached from previous runs.
 function ReportGenerator:get_packages_latest()
     local cached = self.cache:get_latest() or {}
     local new = {}

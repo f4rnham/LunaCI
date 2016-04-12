@@ -29,6 +29,7 @@ end
 })
 
 
+-- Run the worker on all the given targets and tasks.
 function Worker:run(targets, tasks)
     pl.utils.assert_arg(1, targets, "table")
     pl.utils.assert_arg(2, tasks, "table")
@@ -43,6 +44,7 @@ function Worker:run(targets, tasks)
 end
 
 
+-- Run tasks for the package on a given targets.
 function Worker:run_target(package, target, tasks)
     pl.utils.assert_arg(1, package, "table")
     pl.utils.assert_arg(2, target, "table")
@@ -74,6 +76,7 @@ function Worker:run_target(package, target, tasks)
 end
 
 
+-- Ge the PackageReport with the output from the runs.
 function Worker:get_report()
     return self.report
 end
