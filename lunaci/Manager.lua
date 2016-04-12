@@ -83,7 +83,7 @@ function Manager:has_new_dependencies(name, ver)
         local dep_name, dep_const = const.split(dep)
         local new_dep_vers = self:get_changed_versions(dep_name) or {}
         for new_ver in pairs(new_dep_vers) do
-            if const.constraint_satisified(new_ver, dep_const) then
+            if not dep_const or const.constraint_satisified(new_ver, dep_const) then
                 return true
             end
         end
@@ -92,7 +92,16 @@ function Manager:has_new_dependencies(name, ver)
 end
 
 
+local changed_version_cache = {}
+setmetatable(changed_version_cache, {
+    __mode = "kv"
+})
+
+
 function Manager:get_changed_versions(name)
+    if changed_version_cache[name] then
+        return changed_version_cache[name]
+    end
     if not self.cache.manifest then
         return self.manifest.packages[name]
     end
@@ -108,6 +117,7 @@ function Manager:get_changed_versions(name)
             new_versions[ver] = spec
         end
     end
+    changed_version_cache[name] = new_versions
     return new_versions
 end
 
