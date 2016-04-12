@@ -45,7 +45,7 @@ end
 
 function Worker:run_target(package, target, tasks)
     pl.utils.assert_arg(1, package, "table")
-    pl.utils.assert_string(2, target)
+    pl.utils.assert_arg(2, target, "table")
     pl.utils.assert_arg(3, tasks, "table")
 
     local continue = true

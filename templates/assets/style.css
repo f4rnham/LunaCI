@@ -18,7 +18,7 @@ body{padding-top: 50px}
 .table.dashboard .pkg, .table.dashboard .ver, .table.dashboard .date{text-align: left;}
 .table.dashboard td.link{padding: 0;}
 .table.dashboard td.link a{display: block;padding: 8px;}
-.table.dashboard td.q{width: 80px}
+.table.dashboard td.q{width: 70px}
 
 
 .page-header .nav{float: right;margin-top: 1.8em;}

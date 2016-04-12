@@ -6,6 +6,10 @@ local log = require "logging"
 local function status(s)
     return {title = s[1], msg = s[2], class = s[3]}
 end
+local function target(t)
+    return {name = t[1], compatibility = t[2], binary = t[3]}
+end
+
 
 data_dir = path.abspath("data")
 
@@ -13,7 +17,7 @@ data_dir = path.abspath("data")
 manifest = {}
 manifest.repo = "https://gist.github.com/efe9312e64d0e492282e.git"
 manifest.path = path.join(data_dir, "manifest-repo")
-manifest.file = path.join(manifest.path, "manifest-file.test")
+manifest.file = path.join(manifest.path, "manifest-file")
 
 cache = {}
 cache.path = path.join(data_dir, "cache")
@@ -28,9 +32,10 @@ logging.date_format = "%Y-%m-%d"
 
 
 ci_targets = {
-    "lua 5.1",
-    "lua 5.2",
-    "lua 5.3",
+    target{"Lua 5.3", "5.3", "lua5.3/bin/lua"},
+    target{"Lua 5.2", "5.2", "lua5.2/bin/lua"},
+    target{"Lua 5.1", "5.1", "lua5.1/bin/lua"},
+    target{"LuaJIT 2.0.3",  "5.1.5", "luaJIT/bin/luajit"},
 }
 
 

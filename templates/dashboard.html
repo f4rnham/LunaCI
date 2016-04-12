@@ -46,12 +46,12 @@
                 <tr>
                     <th class="pkg" rowspan="2">Package</th>
                     <th class="ver" rowspan="2">Latest version</th>
-# for _, target in sort(targets) do
-                    <th colspan="$(#tasks)">$(e(ucfirst(target)))</th>
+# for _, target in pairs(targets) do
+                    <th colspan="$(#tasks)">$(e(target.name))</th>
 # end
                 </tr>
                 <tr>
-# for _ in sort(targets) do
+# for _ in pairs(targets) do
 #   for _, task in sort(tasks) do
                     <td>$(e(task))</td>
 #   end
@@ -64,8 +64,8 @@
                 <tr>
                     <td class="pkg link"><a href="packages/$(urlsafe(package.name))/">$(e(package.name))</a></td>
                     <td class="ver">$(e(package.version))</td>
-#   for _, target in sort(package.targets) do
-#       for _, task in pairs(target) do
+#   for _, target in pairs(package.targets) do
+#       for _, task in pairs(target.tasks) do
                     <td class="q $(e(task.success.class))" title="$(e(task.success.msg))">$(e(task.success.title))</td>
 #       end
 #   end

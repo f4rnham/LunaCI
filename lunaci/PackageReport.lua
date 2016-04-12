@@ -21,7 +21,7 @@ end
 
 function PackageReport:add_output(package, target, task, success, output)
     pl.utils.assert_arg(1, package, "table")
-    pl.utils.assert_string(2, target)
+    pl.utils.assert_arg(2, target, "table")
     pl.utils.assert_arg(3, task, "table")
     pl.utils.assert_string(5, output)
 
@@ -35,7 +35,7 @@ end
 function PackageReport:get_output_location(package, version, target)
     pl.utils.assert_arg(1, package, "table")
     pl.utils.assert_string(2, version)
-    pl.utils.assert_string(3, target)
+    pl.utils.assert_arg(3, target, "table")
 
     if not self.outputs[version] then
         self.outputs[version] = {
@@ -46,10 +46,26 @@ function PackageReport:get_output_location(package, version, target)
             targets = {}
         }
     end
-    if not self.outputs[version].targets[target] then
-        self.outputs[version].targets[target] = {}
+
+    idx = 0
+    local targets = self.outputs[version].targets
+    for i, trgt in ipairs(targets) do
+        if pl.tablex.deepcompare(trgt.target, target) then
+            idx = i
+            break
+        end
     end
-    return self.outputs[version].targets[target]
+    if idx == 0 then
+        table.insert(targets, {target = target, tasks = {}})
+        idx = #targets
+    end
+
+    return self.outputs[version].targets[idx].tasks
+
+    -- if not self.outputs[version].targets[target] then
+    --     self.outputs[version].targets[target] = {}
+    -- end
+    -- return self.outputs[version].targets[target]
 end
 
 function PackageReport:get_output()

@@ -28,12 +28,12 @@
                 <tr>
                     <th class="ver" rowspan="2">Version</th>
                     <th class="date" rowspan="2">Timestamp</th>
-# for _, target in sort(targets) do
-                    <th colspan="$(#tasks)">$(e(ucfirst(target)))</th>
+# for _, target in pairs(targets) do
+                    <th colspan="$(#tasks)">$(e(target.name))</th>
 # end
                 </tr>
                 <tr>
-# for _ in sort(targets) do
+# for _ in pairs(targets) do
 #   for _, task in sort(tasks) do
                     <td>$(e(task))</td>
 #   end
@@ -46,8 +46,8 @@
                 <tr>
                     <td class="ver link"><a href="$(urlsafe(output.version)).html">$(e(output.version))</a></td>
                     <td class="date">$(date("%d. %m. %Y, %H:%M:%S", output.timestamp))</td>
-#   for _, target in sort(output.targets) do
-#       for _, task in pairs(target) do
+#   for _, target in pairs(output.targets) do
+#       for _, task in pairs(target.tasks) do
                     <td class="q $(e(task.success.class))" title="$(e(task.success.msg))">$(e(task.success.title))</td>
 #       end
 #   end

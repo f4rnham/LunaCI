@@ -9,8 +9,7 @@ local check_package_dependencies = function(package, target, manifest)
 
     -- Add target to manifest as a virtual package
     local manifest = pl.tablex.deepcopy(manifest)
-    target_name, target_version = const.split(target)
-    manifest.packages[target_name] = {[target_version] = {}}
+    manifest.packages["lua"] = {[target.compatibility] = {}}
 
     local solver = DependencySolver(manifest, config.platform)
     local deps, err = solver:resolve_dependencies(tostring(package))

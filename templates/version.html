@@ -28,11 +28,11 @@
             </ul>
         </div>
 
-# for target, tasks in sort(package.targets) do
+# for _, target in pairs(package.targets) do
         <div class="target panel-group">
-            <h2>$(e(ucfirst(target)))</h2>
+            <h2>$(e(target.target.name))</h2>
 
-#   for _, task in pairs(tasks) do
+#   for _, task in pairs(target.tasks) do
             <div class="panel panel-$(e(task.success.class))">
                 <div class="panel-heading">$(e(task.name)) &ndash; $(e(task.success.msg))</div>
                 <pre class="panel-body">$(e(task.output))</pre>
