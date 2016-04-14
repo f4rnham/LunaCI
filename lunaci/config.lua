@@ -44,7 +44,6 @@ targets = {
     target{"Lua 5.3", "5.3", "lua5.3/bin/lua"},
     target{"Lua 5.2", "5.2", "lua5.2/bin/lua"},
     target{"Lua 5.1", "5.1", "lua5.1/bin/lua"},
-    target{"LuaJIT 2.0.3",  "5.1.5", "luaJIT/bin/luajit"},
 }
 
 
@@ -57,6 +56,17 @@ STATUS_OK   = status{"OK", "Success", "success"}
 STATUS_FAIL = status{"Fail", "Failure", "danger"}
 STATUS_NA   = status{"N/A", "Not applicable", "info"}
 STATUS_INT  = status{"Internal", "Internal tooling error", "warning"}
+STATUS_SKIP = status{"Skip", "Skipped", "default"}
+
+
+-- Output repository
+output = {}
+output.repo = path.join(data_dir, "output")
+output.remote = "git@github.com:LuaDist/lunaci.git"
+output.remote_name = "origin"
+output.branch = "gh-pages"
+output.git_user_name = "LunaCI"
+output.git_user_mail = "lunaci@luadist.org"
 
 
 -- Templating
@@ -70,7 +80,9 @@ templates.package_file = path.join(templates.path, "package.html")
 templates.version_file = path.join(templates.path, "version.html")
 
 -- Template output paths
-templates.output_path = path.join(data_dir, "output")
+templates.output_path = output.repo
 templates.output_dashboard = "index.html"
 templates.output_package = "packages/%s/index.html"
 templates.output_version = "packages/%s/%s.html"
+
+
