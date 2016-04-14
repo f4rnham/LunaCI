@@ -109,7 +109,7 @@ function Cache:add_report(name, report)
     for _, out in pairs(output) do
         out.package = nil
         for _, target in pairs(out.targets) do
-            for _, task in pairs(target) do
+            for _, task in pairs(target.tasks) do
                 task.output = nil
             end
         end

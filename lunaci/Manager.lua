@@ -64,7 +64,7 @@ function Manager:process_packages()
     for name in self:get_packages() do
         log:info("Processing package '%s'", name)
         local new_versions = self:get_changed_versions(name)
-        if new_versions then
+        if #new_versions > 0 then
             for v in plsort(new_versions, utils.sortVersions) do
                 log:debug("New version: %s", v)
             end
@@ -192,6 +192,11 @@ function Manager:fetch_manifest()
     end
 
     return pl.pretty.read(pl.file.read(config.manifest.file))
+end
+
+
+function Manager:publish_reports(reports)
+    -- TODO
 end
 
 
