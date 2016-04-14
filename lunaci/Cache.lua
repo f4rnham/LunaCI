@@ -24,7 +24,7 @@ end
 
 
 -- Load cache from files.
-function Cache:load_cache()
+function Cache:load()
     -- Load manifest cache
     if pl.path.exists(config.cache.manifest) then
         self.manifest = pl.pretty.read(pl.file.read(config.cache.manifest)) or nil
@@ -50,7 +50,7 @@ end
 
 
 -- Save cache to file
-function Cache:persist_cache()
+function Cache:persist()
     -- Create cache directory if doesn't exist
     if not pl.path.exists(config.cache.path) then
         local ok, err = pl.dir.makepath(config.cache.path)
@@ -85,6 +85,14 @@ end
 -- TODO
 function Cache:add_task(task)
     -- noop at this point
+end
+
+
+-- Add a table of reports to cache
+function Cache:add_reports(reports)
+    for name, report in pairs(reports) do
+        self:add_report(name, report)
+    end
 end
 
 

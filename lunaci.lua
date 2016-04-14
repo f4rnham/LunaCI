@@ -21,4 +21,4 @@ manager:add_task("Require", require "lunaci.tasks.require")
 
 
 
-manager:process_packages()
+manager:run()

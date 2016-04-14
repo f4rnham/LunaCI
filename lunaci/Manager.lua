@@ -13,6 +13,13 @@ local pl = require "pl.import_into"()
 local plsort = pl.tablex.sort
 
 
+-- Cache for new/updated versions of packages
+local changed_version_cache = {}
+setmetatable(changed_version_cache, {
+    __mode = "kv"
+})
+
+
 local Manager = {}
 Manager.__index = Manager
 setmetatable(Manager, {
@@ -34,43 +41,52 @@ end
 })
 
 
--- Fetch manifest from git manifest repo
-function Manager:fetch_manifest()
-    log:info("Fetching manifest")
+function Manager:run()
+    self:get_manifest()
+    self.generator:prepare_output_dir()
+    self.cache:load()
 
-    if pl.path.exists(pl.path.join(config.manifest.path, ".git", "config")) then
-        local ok, err = utils.git_pull(config.manifest.path, 'origin', 'master')
-        if not ok then
-            return nil, "Pull on manifest repository failed: " .. err
-        end
-        if pl.path.exists(config.manifest.file) then
-            return pl.pretty.read(pl.file.read(config.manifest.file))
-        else
-            return nil, "Manifest file '" .. config.manifest.file .. "' not found."
-        end
-    end
+    local reports = self:process_packages()
 
-    local ok, err = utils.git_clone(config.manifest.repo, config.manifest.path)
-    if not ok then return nil, err end
+    self.cache:add_reports(reports)
+    self.cache:set_manifest(self.manifest)
+    self.cache:persist()
 
-    if not pl.path.exists(config.manifest.file) then
-        return nil, "Manifest file '" .. config.manifest.file .. "' not found."
-    end
-
-    return pl.pretty.read(pl.file.read(config.manifest.file))
+    self:publish_reports(reports)
 end
 
 
--- Returns manifest, fetching it if not yet loaded.
-function Manager:get_manifest()
-    if self.manifest then
-        return self.manifest
+-- Process all the packages in the manifest - run all tasks on all targets
+-- and generate reports and dashboards.
+function Manager:process_packages()
+    local reports = {}
+
+    for name in self:get_packages() do
+        log:info("Processing package '%s'", name)
+        local new_versions = self:get_changed_versions(name)
+        if new_versions then
+            for v in plsort(new_versions, utils.sortVersions) do
+                log:debug("New version: %s", v)
+            end
+            local worker = Worker(name, new_versions, self.manifest)
+            worker:run(self.targets, self.tasks)
+
+            -- Generate package reports
+            self.generator:add_report(name, worker:get_report())
+            for version in plsort(new_versions, utils.sortVersions) do
+                self.generator:generate_package_version(name, version)
+            end
+            -- Generate package summary report
+            self.generator:generate_package(name)
+
+            reports[name] = worker:get_report()
+        end
     end
-    self.manifest, err = self:fetch_manifest()
-    if not self.manifest then
-        error("Could not fetch current manifest: " .. err)
-    end
-    return self.manifest
+
+    -- Generate dashboard report
+    self.generator:generate_dashboard()
+
+    return reports
 end
 
 
@@ -111,13 +127,6 @@ function Manager:has_new_dependencies(name, ver)
 end
 
 
--- Cache for new/updated versions of packages
-local changed_version_cache = {}
-setmetatable(changed_version_cache, {
-    __mode = "kv"
-})
-
-
 -- Returns a list of new or updated versions for a given package
 -- since the last cached manifest. A package version is considered updated,
 -- if any of its dependencies have been updated.
@@ -146,48 +155,43 @@ function Manager:get_changed_versions(name)
 end
 
 
--- Process all the packages in the manifest - run all tasks on all targets
--- and generate reports and dashobards.
-function Manager:process_packages()
-    --TODO move elsewhere
-    self:get_manifest()
-    self.cache:load_cache()
-    self.generator:prepare_output_dir()
+-- Returns manifest, fetching it if not yet loaded.
+function Manager:get_manifest()
+    if self.manifest then
+        return self.manifest
+    end
+    self.manifest, err = self:fetch_manifest()
+    if not self.manifest then
+        error("Could not fetch current manifest: " .. err)
+    end
+    return self.manifest
+end
 
-    local cached = {}
 
-    for name in self:get_packages() do
-        log:info("Processing package '%s'", name)
-        local new_versions = self:get_changed_versions(name)
-        if new_versions then
-            for v in plsort(new_versions, utils.sortVersions) do
-                log:debug("New version: %s", v)
-            end
-            local worker = Worker(name, new_versions, self.manifest)
-            worker:run(self.targets, self.tasks)
+-- Fetch manifest from git manifest repo
+function Manager:fetch_manifest()
+    log:info("Fetching manifest")
 
-            -- Generate package reports
-            self.generator:add_report(name, worker:get_report())
-            for version in plsort(new_versions, utils.sortVersions) do
-                self.generator:generate_package_version(name, version)
-            end
-            self.generator:generate_package(name)
-
-            cached[name] = worker:get_report()
+    if pl.path.exists(pl.path.join(config.manifest.path, ".git", "config")) then
+        local ok, err = utils.git_pull(config.manifest.path, 'origin', 'master')
+        if not ok then
+            return nil, "Pull on manifest repository failed: " .. err
+        end
+        if pl.path.exists(config.manifest.file) then
+            return pl.pretty.read(pl.file.read(config.manifest.file))
+        else
+            return nil, "Manifest file '" .. config.manifest.file .. "' not found."
         end
     end
 
-    -- Generate dashboard report
-    self.generator:generate_dashboard()
+    local ok, err = utils.git_clone(config.manifest.repo, config.manifest.path)
+    if not ok then return nil, err end
 
-
-    -- TODO move elsewhere
-    for name, report in pairs(cached) do
-        self.cache:add_report(name, report)
+    if not pl.path.exists(config.manifest.file) then
+        return nil, "Manifest file '" .. config.manifest.file .. "' not found."
     end
-    self.cache:set_manifest(self.manifest)
 
-    self.cache:persist_cache()
+    return pl.pretty.read(pl.file.read(config.manifest.file))
 end
 
 
