@@ -24,19 +24,23 @@
             <form class="form-inline package-filter">
                 <div class="form-group">
                     <label class="sr-only" for="searchFilter">Search packages</label>
-                    <input type="text" class="form-control table-filter-input" id="searchFilter" placeholder="Search packages" data-table="package-table">
+                    <input type="text" class="form-control table-filter-input" id="searchFilter" placeholder="Search packages&hellip;" data-table="package-table">
                 </div>
             </form>
 
             <div class="stats">
-                <p>$(stats.packages) packages available</p>
-# --                <span class="progress-title" style="width: $ (stats.passing)%">$ (stats.passing)% passing</span>
-# --                <span class="progress-title" style="width: $ (stats.failing)%">$ (stats.failing)% failing</span>
-# --                <span class="clearfix"></span>
-# --                <div class="progress">
-# --                    <span class="progress-bar progress-bar-success progress-bar-striped" style="width: $ (stats.passing)%"></span>
-# --                    <span class="progress-bar progress-bar-danger  progress-bar-striped" style="width: $ (stats.failing)%"></span>
-# --                </div>
+                <a href="#" class="filter-status reset-filter" data-status="">Reset filter</a>
+                <p><strong>$(stats.packages) packages available</strong></p>
+                <div class="progress">
+# for _, res in pairs(stats.results) do
+                    <span class="progress-bar progress-bar-$(e(res.class)) progress-bar-striped" style="width: $(e(res.val))%"></span>
+# end
+                </div>
+                <ul class="stats-title">
+# for _, res in pairs(stats.results) do
+                    <li><span class="dot progress-bar progress-bar-$(e(res.class))"></span> <a href="#" class="filter-status" data-status="$(e(res.title))">$(e(res.msg))</a> $(e(res.val))%</li>
+# end
+                </ul>
             </div>
         </div>
 

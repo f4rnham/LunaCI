@@ -1,13 +1,16 @@
 body{padding-top: 50px}
 
-.page-header{overflow: auto;}
 .page-header h1{float: left}
 
-.page-header .package-filter{float: right;margin: 1.6em 0 0}
+.page-header .package-filter{float: right;margin: 2em 0 0}
 .page-header .package-filter .input-group-addon{background: none;}
 
 .page-header .stats{clear: both;overflow: auto;}
-.page-header .stats .progress-title{display: block;float: left;padding: 0 0 5px;}
+.page-header .stats .reset-filter{float: right;padding-top: 2px;display: none;}
+.page-header .stats .stats-title li{display: table-cell;width: 1%;text-align: center;white-space: nowrap;color:#000}
+.page-header .stats .stats-title .dot{display: inline-block;width: 15px;height: 15px;border-radius: 50%;float: none;position: relative;top:2px}
+.page-header .stats .stats-title a{padding: 0 2px;color:#555;}
+.page-header .stats .stats-title a:hover{color:#000}
 
 .navbar-inverse .navbar-brand{color:#fff}
 .navbar-inverse .navbar-text{font-style: italic;color:#ddd}
@@ -35,3 +38,4 @@ body{padding-top: 50px}
 
 
 .footer{padding:40px;margin-top: 40px;border-top: 1px solid #eee;text-align: center;}
+p: 40px;border-top: 1px solid #eee;text-align: center;}

@@ -90,12 +90,11 @@ function ReportGenerator:generate_dashboard()
     local env = {
         stats = {
             packages = count,
-            -- passing = 72,
-            -- failing = 28,
+            results = self:generate_stats(packages)
         },
         targets = self.targets,
         tasks = self.tasks,
-        packages = packages
+        packages = plsort(packages)
     }
     return self:output_file(tpl_file, env, output_file)
 end
@@ -176,7 +175,38 @@ function ReportGenerator:get_packages_latest()
         new[name] = report:get_latest()
     end
     local merged = pl.tablex.merge(cached, new, true)
-    return plsort(merged), pl.tablex.size(merged)
+    return merged, pl.tablex.size(merged)
+end
+
+
+function ReportGenerator:generate_stats(packages)
+    local stats = {}
+    local total = 0
+
+    for _, pkg in pairs(packages) do
+        for _, target in pairs(pkg.targets) do
+            for _, task in pairs(target.tasks) do
+                local class = task.success.class
+                if not stats[class] then
+                    stats[class] = pl.tablex.deepcopy(task.success)
+                    stats[class].val = 0
+                end
+                stats[class].val = stats[class].val + 1
+                total = total + 1
+            end
+        end
+    end
+
+    for k, v in pairs(stats) do
+        stats[k].val = string.format("%.0f", stats[k].val / total * 100)
+    end
+
+    local sorted = {}
+    for _, v in pl.tablex.sortv(stats, function(a, b) return tonumber(a.val) > tonumber(b.val) end) do
+        table.insert(sorted, v)
+    end
+
+    return sorted
 end
 
 
