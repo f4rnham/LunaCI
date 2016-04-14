@@ -6,10 +6,12 @@ body{padding-top: 50px}
 .page-header .package-filter .input-group-addon{background: none;}
 
 .page-header .stats{clear: both;overflow: auto;}
-.page-header .stats .reset-filter{float: right;padding-top: 2px;display: none;}
+.page-header .stats .reset-filter{float: right;margin-top: -2px;display: none;}
+.page-header .stats .reset-filter:after{content:"×";display: inline-block;font-weight: bold;color:#999;text-decoration: none;padding-left: 3px;line-height: 1;font-size: 23px;position: relative;top:1px}
+.page-header .stats .reset-filter:hover:after{color:#777}
 .page-header .stats .stats-title li{display: table-cell;width: 1%;text-align: center;white-space: nowrap;color:#000}
 .page-header .stats .stats-title .dot{display: inline-block;width: 15px;height: 15px;border-radius: 50%;float: none;position: relative;top:2px}
-.page-header .stats .stats-title a{padding: 0 2px;color:#555;}
+.page-header .stats .stats-title a{padding: 0 0 0 2px;color:#555;}
 .page-header .stats .stats-title a:hover{color:#000}
 
 .navbar-inverse .navbar-brand{color:#fff}
