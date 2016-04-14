@@ -35,12 +35,19 @@ end
 
 
 -- Fetch manifest from git manifest repo
--- TODO run git pull
 function Manager:fetch_manifest()
     log:info("Fetching manifest")
 
-    if pl.path.exists(config.manifest.file) then
-        return pl.pretty.read(pl.file.read(config.manifest.file))
+    if pl.path.exists(pl.path.join(config.manifest.path, ".git", "config")) then
+        local ok, err = utils.git_pull(config.manifest.path, 'origin', 'master')
+        if not ok then
+            return nil, "Pull on manifest repository failed: " .. err
+        end
+        if pl.path.exists(config.manifest.file) then
+            return pl.pretty.read(pl.file.read(config.manifest.file))
+        else
+            return nil, "Manifest file '" .. config.manifest.file .. "' not found."
+        end
     end
 
     local ok, err = utils.git_clone(config.manifest.repo, config.manifest.path)
@@ -59,7 +66,10 @@ function Manager:get_manifest()
     if self.manifest then
         return self.manifest
     end
-    self.manifest = self:fetch_manifest()
+    self.manifest, err = self:fetch_manifest()
+    if not self.manifest then
+        error("Could not fetch current manifest: " .. err)
+    end
     return self.manifest
 end
 

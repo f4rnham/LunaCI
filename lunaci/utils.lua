@@ -43,8 +43,16 @@ end
 
 
 function git_clone(source, target)
-    log:debug("Cloning repository " .. source)
+    log:debug("Cloning repository %s into %s", source, target)
     local ok, code, out, err = pl.utils.executeex("git clone '" .. source .. "' '" .. pl.path.abspath(target) .. "'")
+
+    return ok, not ok and err or nil
+end
+
+
+function git_pull(repo, remote, branch)
+    log:debug("Pulling %s:%s into repository %s ", remote, branch, repo)
+    local ok, code, out, err = dir_exec(repo, "git pull '" .. remote .. "' '" .. branch .. "'")
 
     return ok, not ok and err or nil
 end

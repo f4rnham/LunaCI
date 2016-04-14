@@ -1,7 +1,6 @@
 module("lunaci", package.seeall)
 
 local log = require "lunaci.log"
-local utils = require "lunaci.utils"
 local config = require "lunaci.config"
 
 local Cache = require "lunaci.Cache"
