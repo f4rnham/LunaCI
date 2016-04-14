@@ -81,6 +81,7 @@ end
 
 -- Generate report dashboard with a table of all the packages and outputs
 -- for their latest versions.
+-- TODO stats?
 function ReportGenerator:generate_dashboard()
     local tpl_file = config.templates.dashboard_file
     local output_file = pl.path.join(config.templates.output_path, config.templates.output_dashboard)
@@ -139,9 +140,6 @@ end
 
 -- Prepare output directory structure and copy static assets
 function ReportGenerator:prepare_output_dir()
-    -- Make directory structure to output path
-    utils.force_makepath(config.templates.output_path)
-
     -- Copy assets
     local asset_out = pl.path.join(config.templates.output_path, pl.path.basename(config.templates.asset_path))
     utils.force_makepath(asset_out)

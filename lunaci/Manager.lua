@@ -42,16 +42,25 @@ end
 
 
 function Manager:run()
+    -- Pull fresh manifest from git
     self:get_manifest()
+
+    -- Initialise output repository
+    self:init_repository()
     self.generator:prepare_output_dir()
+
+    -- Load cache
     self.cache:load()
 
+    -- Run the tasks and generate reports
     local reports = self:process_packages()
 
+    -- Update cache
     self.cache:add_reports(reports)
     self.cache:set_manifest(self.manifest)
     self.cache:persist()
 
+    -- Publish reports to git
     self:publish_reports(reports)
 end
 
@@ -62,9 +71,9 @@ function Manager:process_packages()
     local reports = {}
 
     for name in self:get_packages() do
-        log:info("Processing package '%s'", name)
         local new_versions = self:get_changed_versions(name)
-        if #new_versions > 0 then
+        if next(new_versions) ~= nil then
+            log:info("Processing package '%s'", name)
             for v in plsort(new_versions, utils.sortVersions) do
                 log:debug("New version: %s", v)
             end
@@ -195,8 +204,58 @@ function Manager:fetch_manifest()
 end
 
 
+function Manager:init_repository()
+    local path = pl.path
+    local cf = config.output
+    local repo = cf.repo
+    utils.force_makepath(repo)
+
+    -- Init git repository if not ready yet
+    if not path.exists(path.join(repo, ".git", "config")) then
+        local ok, code, out, err = utils.dir_exec(repo, "git init -q")
+        if not ok then error("Could not init repository: " .. err) end
+
+        utils.dir_exec(repo, "git config --local user.name '" .. cf.git_user_name .. "'")
+        utils.dir_exec(repo, "git config --local user.email '" .. cf.git_user_mail .. "'")
+
+        local ok, code, out, err = utils.dir_exec(repo, "git remote add '" .. cf.remote_name .. "' '" .. cf.remote .. "'")
+        if not ok then error("Could not add remote: " .. err) end
+
+        utils.dir_exec(repo, "git checkout -b '" .. cf.branch .. "'")
+    end
+end
+
+
 function Manager:publish_reports(reports)
-    -- TODO
+    -- Skip if no changes.
+    if next(reports) == nil then
+        return
+    end
+
+    -- Prepare commit message
+    local commit_msg = pl.stringio.create()
+    commit_msg:write("Update reports.\n\nNew/updated packages:\n")
+    for name, report in plsort(reports) do
+        for version in plsort(report.outputs, utils.sortVersions) do
+            commit_msg:write(changed_packages, name .. " " .. version .. "\n")
+        end
+    end
+
+    local commit_msg_file = pl.path.tmpname()
+    print("Temporary file", commit_msg_file)
+    pl.file.write(commit_msg_file, commit_msg:value())
+
+    local cf = config.output
+    local repo = cf.repo
+    utils.dir_exec(repo, "git add -A")
+    utils.dir_exec(repo, "git commit -F '" .. commit_msg_file .. "'")
+
+    pl.file.delete(commit_msg_file)
+
+    local ok, code, out, err = utils.dir_exec(repo, "git push '" .. cf.remote_name .. "' '" .. cf.branch .. "'")
+    if not ok then
+        error("Could not push to remote: " .. err)
+    end
 end
 
 
