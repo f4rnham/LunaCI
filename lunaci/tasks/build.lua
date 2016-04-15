@@ -34,12 +34,13 @@ cp -r ../LuaDist %s
         return config.STATUS_INT, msg:format("Luadist setup failed", stdout, stderr, status), false
     end
 
-    dist_cfg.log_file = "/tmp/luadist.log"
+    -- Disable log file and setup custom logging callback
+    dist_cfg.write_log_level = nil
     local dist_log = ""
     reload_log(function(level, message)
         dist_log = dist_log .. level .. " " .. message .. "\n"
     end)
-    local ok, dist_err = dist.install(tostring(package), tmp_deploy_dir)
+    local ok, dist_err, bad_pkg = dist.install(tostring(package), tmp_deploy_dir)
 
     if ok then
         return config.STATUS_OK, dist_log, true
@@ -48,6 +49,11 @@ cp -r ../LuaDist %s
             if dist_err:find(msg) ~= nil then
                 return config.STATUS_SKIP, dist_err, false
             end
+        end
+
+        -- If dist.install failed on other than tested package (most likely dependency)
+        if bad_pkg and bad_pkg.name ~= package.name then
+            return config.STATUS_DEP_F, dist_err, false
         end
 
         return config.STATUS_FAIL, dist_err, false
