@@ -22,11 +22,34 @@ cp -r ../LuaDist %s
 ]]):format(tmp_deploy_dir, tmp_deploy_dir)
 
     local skip_msg = {
-    "not found in provided repositories",
-    "Unhandled rockspec build type",
-    "Unsupported platform %(your platform is not in list of supported platforms%)",
-    "Unsupported platform %(your platform was explicitly marked as not supported%)",
+        "not found in provided repositories",
+        "Unhandled rockspec build type",
+        "Unsupported platform %(your platform is not in list of supported platforms%)",
+        "Unsupported platform %(your platform was explicitly marked as not supported%)",
     }
+
+    local ce_msg = {
+        "error: array type has incomplete element type ‘struct luaL_reg’",
+        "error: unknown type name ‘luaL_reg’",
+    }
+
+    local ke_msg = {
+        "Cound not load rockspec for package .* unexpected symbol near '='"
+        "attempt to concatenate field 'type' %(a nil value%)"
+    }
+
+    -- External dependency
+    -- fatal error: libpq-fe.h: No such file or directory
+
+    local function check_messages(log, messages)
+        for _, msg in pairs(messages) do
+            if log:find(msg) ~= nil then
+                return true
+            end
+        end
+
+        return false
+    end
 
     local ok, status, stdout, stderr = pl.utils.executeex(setup)
 
@@ -45,10 +68,16 @@ cp -r ../LuaDist %s
     if ok then
         return config.STATUS_OK, dist_log, true
     else
-        for _, msg in pairs(skip_msg) do
-            if dist_err:find(msg) ~= nil then
-                return config.STATUS_SKIP, dist_err, false
-            end
+        if check_messages(dist_err, skip_msg) then
+            return config.STATUS_SKIP, dist_err, false
+        end
+
+        if check_messages(dist_err, ce_msg) then
+            return config.STATUS_CE, dist_err, false
+        end
+
+        if check_messages(dist_err, ke_msg) then
+            return config.STATUS_KE, dist_err, false
         end
 
         -- If dist.install failed on other than tested package (most likely dependency)
