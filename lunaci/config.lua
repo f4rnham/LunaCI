@@ -41,10 +41,7 @@ logging.date_format = "%Y-%m-%d"
 
 -- LunaCI Targets
 targets = {
-    target{"Lua 5.3", "5.3", "lua5.3/bin/lua"},
-    target{"Lua 5.2", "5.2", "lua5.2/bin/lua"},
-    target{"Lua 5.1", "5.1", "lua5.1/bin/lua"},
-    target{"LuaJIT 2.0.3",  "5.1.5", "luaJIT/bin/luajit"},
+    target{"Lua 5.2", "5.2", "bin/lua"},
 }
 
 

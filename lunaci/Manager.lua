@@ -156,24 +156,35 @@ function Manager:process_packages()
 
     local cached = {}
 
+    local i = 0
+
     for name in self:get_packages() do
         log:info("Processing package '%s'", name)
         local new_versions = self:get_changed_versions(name)
+        local vers = {}
         if new_versions then
-            for v in plsort(new_versions, utils.sortVersions) do
+            for v, a in plsort(new_versions, utils.sortVersions) do
                 log:debug("New version: %s", v)
+
+                vers[v] = a
+                break
             end
-            local worker = Worker(name, new_versions, self.manifest)
+            local worker = Worker(name, vers, self.manifest)
             worker:run(self.targets, self.tasks)
 
             -- Generate package reports
             self.generator:add_report(name, worker:get_report())
-            for version in plsort(new_versions, utils.sortVersions) do
+            for version in plsort(vers, utils.sortVersions) do
                 self.generator:generate_package_version(name, version)
             end
             self.generator:generate_package(name)
 
             cached[name] = worker:get_report()
+        end
+
+        i = i + 1
+        if i > 123456789 then
+            break
         end
     end
 
