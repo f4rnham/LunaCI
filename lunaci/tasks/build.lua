@@ -1,38 +1,57 @@
 module("lunaci.tasks.build", package.seeall)
 
-math.randomseed(os.time())
+local dist = require "dist"
+local dist_cfg = require "dist.config"
+local reload_log = require "dist.log".reload_config
+local pl = require "pl.import_into"()
+local config = require "lunaci.config"
 
-
--- Dummy random placeholder task implementation.
 local build_package = function(package, target, manifest)
-    local config = require "lunaci.config"
-    err_msg = ([[
-Building package %s...
-Error building: Something wrong happend.
-This is just a placeholder text here to make it longer.
-]]):format(tostring(package))
+    local msg = [[
+%s
+stdout: %s
+stderr: %s
+status: %s
+]]
 
-    succ_msg = ([[
-Building package %s...
+    local tmp_deploy_dir = "../_LuaDist"
 
-Resolving dependencies... Done.
-Installing dependencies... Done.
-All dependencies installed successfully.
+    local setup = ([[
+rm -rf %s
+cp -r ../LuaDist %s
+]]):format(tmp_deploy_dir, tmp_deploy_dir)
 
-Executing CMake... Done.
+    local skip_msg = {
+    "not found in provided repositories",
+    "Unhandled rockspec build type",
+    "Unsupported platform %(your platform is not in list of supported platforms%)",
+    "Unsupported platform %(your platform was explicitly marked as not supported%)",
+    }
 
-Package build successful.
-]]):format(tostring(package))
+    local ok, status, stdout, stderr = pl.utils.executeex(setup)
 
-    rand = math.random(10)
-    if rand <= 3 then
-        return config.STATUS_FAIL, err_msg, false
-    elseif rand < 5 then
-        return config.STATUS_INT, err_msg, false
-    else
-        return config.STATUS_OK, succ_msg, true
+    if not ok then
+        return config.STATUS_INT, msg:format("Luadist setup failed", stdout, stderr, status), false
     end
 
+    dist_cfg.log_file = "/tmp/luadist.log"
+    local dist_log = ""
+    reload_log(function(level, message)
+        dist_log = dist_log .. level .. " " .. message .. "\n"
+    end)
+    local ok, dist_err = dist.install(tostring(package), tmp_deploy_dir)
+
+    if ok then
+        return config.STATUS_OK, dist_log, true
+    else
+        for _, msg in pairs(skip_msg) do
+            if dist_err:find(msg) ~= nil then
+                return config.STATUS_SKIP, dist_err, false
+            end
+        end
+
+        return config.STATUS_FAIL, dist_err, false
+    end
 end
 
 
