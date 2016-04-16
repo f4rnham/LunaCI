@@ -58,25 +58,6 @@
         };
     })(Array.prototype);
 
-    function timeAgo(time){
-        periods = ["second", "minute", "hour", "day", "week", "month", "year", "decade"];
-        lengths = [60, 60, 24, 7, 4.35, 12, 10];
-        now = Date.now() / 1000 | 1;
-
-        difference = now - time;
-
-        for(j = 0; difference >= lengths[j] && j < lengths.length-1; j++) {
-            difference /= lengths[j];
-        }
-
-        difference = Math.round(difference);
-
-        if(difference != 1) {
-           periods[j] += "s";
-        }
-        return difference + ' ' + periods[j] + ' ago';
-    }
-
 
     document.addEventListener('readystatechange', function() {
         if (document.readyState === 'complete') {
@@ -90,15 +71,6 @@
                         body.classList.toggle('panel-hidden')
                     }
                 }
-            });
-
-            // Time ago
-            Array.prototype.forEach.call(document.getElementsByClassName('parsedate'), function(el){
-                var time = el.textContent,
-                    timestamp = Date.parse(time) / 1000 | 1,
-                    ago = timeAgo(timestamp);
-                el.innerHTML = ago;
-                el.title = time;
             });
         }
     });
