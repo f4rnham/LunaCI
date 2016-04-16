@@ -16,6 +16,8 @@ end
 -- Base data directory path
 data_dir = path.abspath("data")
 
+tmp_dir = path.join(data_dir, "tmp")
+
 
 -- Manifest
 manifest = {}
@@ -73,6 +75,8 @@ output.git_user_mail = "lunaci@luadist.org"
 templates = {}
 templates.path = path.abspath("templates")
 templates.asset_path = path.join(templates.path, "assets")
+templates.pkg_repo = "https://github.com/LuaDist2/%s"
+templates.pkg_repo_version = "https://github.com/LuaDist2/%s/tree/%s"
 
 -- Template files
 templates.dashboard_file = path.join(templates.path, "dashboard.html")
