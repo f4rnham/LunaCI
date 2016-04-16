@@ -1,38 +1,92 @@
 module("lunaci.tasks.build", package.seeall)
 
-math.randomseed(os.time())
+local dist = require "dist"
+local dist_cfg = require "dist.config"
+local reload_log = require "dist.log".reload_config
+local pl = require "pl.import_into"()
+local config = require "lunaci.config"
 
-
--- Dummy random placeholder task implementation.
 local build_package = function(package, target, manifest)
-    local config = require "lunaci.config"
-    err_msg = ([[
-Building package %s...
-Error building: Something wrong happend.
-This is just a placeholder text here to make it longer.
-]]):format(tostring(package))
+    local msg = [[
+%s
+stdout: %s
+stderr: %s
+status: %s
+]]
 
-    succ_msg = ([[
-Building package %s...
+    local tmp_deploy_dir = "../_LuaDist"
 
-Resolving dependencies... Done.
-Installing dependencies... Done.
-All dependencies installed successfully.
+    local setup = ([[
+rm -rf %s
+cp -r ../LuaDist %s
+]]):format(tmp_deploy_dir, tmp_deploy_dir)
 
-Executing CMake... Done.
+    local skip_msg = {
+        "not found in provided repositories",
+        "Unhandled rockspec build type",
+        "Unsupported platform %(your platform is not in list of supported platforms%)",
+        "Unsupported platform %(your platform was explicitly marked as not supported%)",
+    }
 
-Package build successful.
-]]):format(tostring(package))
+    local ce_msg = {
+        "error: array type has incomplete element type ‘struct luaL_reg’",
+        "error: unknown type name ‘luaL_reg’",
+    }
 
-    rand = math.random(10)
-    if rand <= 3 then
-        return config.STATUS_FAIL, err_msg, false
-    elseif rand < 5 then
-        return config.STATUS_INT, err_msg, false
-    else
-        return config.STATUS_OK, succ_msg, true
+    local ke_msg = {
+        "Cound not load rockspec for package .* unexpected symbol near '='"
+        "attempt to concatenate field 'type' %(a nil value%)"
+    }
+
+    -- External dependency
+    -- fatal error: libpq-fe.h: No such file or directory
+
+    local function check_messages(log, messages)
+        for _, msg in pairs(messages) do
+            if log:find(msg) ~= nil then
+                return true
+            end
+        end
+
+        return false
     end
 
+    local ok, status, stdout, stderr = pl.utils.executeex(setup)
+
+    if not ok then
+        return config.STATUS_INT, msg:format("Luadist setup failed", stdout, stderr, status), false
+    end
+
+    -- Disable log file and setup custom logging callback
+    dist_cfg.write_log_level = nil
+    local dist_log = ""
+    reload_log(function(level, message)
+        dist_log = dist_log .. level .. " " .. message .. "\n"
+    end)
+    local ok, dist_err, bad_pkg = dist.install(tostring(package), tmp_deploy_dir)
+
+    if ok then
+        return config.STATUS_OK, dist_log, true
+    else
+        if check_messages(dist_err, skip_msg) then
+            return config.STATUS_SKIP, dist_err, false
+        end
+
+        if check_messages(dist_err, ce_msg) then
+            return config.STATUS_CE, dist_err, false
+        end
+
+        if check_messages(dist_err, ke_msg) then
+            return config.STATUS_KE, dist_err, false
+        end
+
+        -- If dist.install failed on other than tested package (most likely dependency)
+        if bad_pkg and bad_pkg.name ~= package.name then
+            return config.STATUS_DEP_F, dist_err, false
+        end
+
+        return config.STATUS_FAIL, dist_err, false
+    end
 end
 
 

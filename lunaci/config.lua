@@ -58,7 +58,10 @@ STATUS_OK   = status{"OK", "Success", "success"}
 STATUS_FAIL = status{"Fail", "Failure", "danger"}
 STATUS_NA   = status{"N/A", "Not applicable", "info"}
 STATUS_INT  = status{"Internal", "Internal tooling error", "warning"}
-STATUS_SKIP = status{"Skip", "Skipped", "default"}
+STATUS_SKIP = status{"Skip", "Skipped", "info"}
+STATUS_DEP_F = status{"DF", "Dependency caused fail", "info"}
+STATUS_CE = status{"CE", "Compile error", "danger"}
+STATUS_KE  = status{"KE", "Known error", "warning"}
 
 
 -- Output repository

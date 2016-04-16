@@ -1,31 +1,22 @@
 module("lunaci.tasks.require", package.seeall)
 
-math.randomseed(os.time())
+local pl = require "pl.import_into"()
+local config = require "lunaci.config"
 
-
--- Dummy random placeholder task implementation.
 local require_modules = function(package, target, manifest)
-    local config = require "lunaci.config"
-    err_msg = ([[
-Trying to require modules from package %s...
-Error: Something wrong happend.
-This is just a placeholder text here to make it longer.
-]]):format(tostring(package))
+    msg = [[
+%s
+stdout: %s
+stderr: %s
+status: %s
+]]
 
-    succ_msg = ([[
-Trying to require modules from package %s...
-All modules required successfully.
-
-Require test successful.
-]]):format(tostring(package))
-
-    rand = math.random(10)
-    if rand < 4 then
-        return config.STATUS_FAIL, err_msg, false
+    local ok, status, stdout, stderr = pl.utils.executeex("../_LuaDist/bin/lua -e 'print(require \"" .. package.name .. "\")'")
+    if ok then
+        return config.STATUS_OK, msg:format("OK " .. tostring(package), stdout, stderr, status), true
     else
-        return config.STATUS_OK, succ_msg, true
+        return config.STATUS_FAIL, msg:format("FAIL " .. tostring(package), stdout, stderr, status), false
     end
-
 end
 
 
