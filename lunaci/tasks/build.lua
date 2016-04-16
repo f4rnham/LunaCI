@@ -34,8 +34,8 @@ cp -r ../LuaDist %s
     }
 
     local ke_msg = {
-        "Cound not load rockspec for package .* unexpected symbol near '='"
-        "attempt to concatenate field 'type' %(a nil value%)"
+        "Cound not load rockspec for package .* unexpected symbol near '='",
+        "attempt to concatenate field 'type' %(a nil value%)",
     }
 
     -- External dependency
