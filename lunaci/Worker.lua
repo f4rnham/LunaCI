@@ -35,7 +35,7 @@ function Worker:run(targets, tasks)
     pl.utils.assert_arg(2, tasks, "table")
 
     for version, spec in pl.tablex.sort(self.package_versions, utils.sortVersions) do
-        local package = self:get_package(self.package_name, version, spec)
+        local package = Package(self.package_name, version, spec)
 
         for _, target in pairs(targets) do
             self:run_target(package, target, tasks)
@@ -79,44 +79,6 @@ end
 -- Ge the PackageReport with the output from the runs.
 function Worker:get_report()
     return self.report
-end
-
-
--- TODO use LuaDist2 for this when ready
-function Worker:get_package(name, version, spec)
-    local path = pl.path
-    local package_dir = path.join(config.tmp_dir, name, version)
-    local repo = string.format(self.manifest.repo_path, name)
-
-    -- Fetch from git - clone with depth 1 and selected tag only
-    if not path.exists(path.join(package_dir, ".git", "config")) then
-        utils.force_makepath(package_dir)
-        utils.dir_exec(package_dir, string.format("git clone -b '%s' --depth=1 '%s' ./", version, repo))
-
-    end
-
-    -- Get rockspec file
-    local rockspec_path = path.join(package_dir, name .. "-" .. version .. ".rockspec")
-    if not path.exists(rockspec_path) then
-        log:error("Could not find rockspec for " .. name .. "-" .. version .. " at " .. rockspec_path)
-
-        return Package(name, version, spec)
-    end
-
-
-    -- Load rockspec from file
-    local contents = pl.file.read(rockspec_path)
-    local lines = pl.stringx.splitlines(contents)
-
-    -- Remove possible hashbangs
-    if lines[1]:match("^#!.*") then
-        table.remove(lines, 1)
-    end
-
-    -- Load rockspec file as table
-    local rockspec = pl.pretty.load(pl.stringx.join("\n", lines), nil, false)
-
-    return Package.from_rockspec(rockspec)
 end
 
 
