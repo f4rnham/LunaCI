@@ -114,7 +114,6 @@ function ReportGenerator:generate_package(name)
         package_name = name,
         package_output = self:get_package_outputs(name),
         spec = self:get_package_spec(name),
-        repo_url = string.format(config.templates.pkg_repo, name),
     }
     utils.force_makepath(pl.path.dirname(output_file))
     return self:output_file(tpl_file, env, output_file)
@@ -136,7 +135,6 @@ function ReportGenerator:generate_package_version(name, version)
         tasks = self.tasks,
         package = package,
         spec = package.package.spec,
-        repo_url = string.format(config.templates.pkg_repo_version, name, version),
     }
     utils.force_makepath(pl.path.dirname(output_file))
     return self:output_file(tpl_file, env, output_file)
