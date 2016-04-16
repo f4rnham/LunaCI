@@ -1,6 +1,7 @@
 module("lunaci.Cache", package.seeall)
 
 local log = require "lunaci.log"
+local utils = require "lunaci.utils"
 local config = require "lunaci.config"
 
 local pl = require "pl.import_into"()
@@ -17,6 +18,7 @@ __call = function(self)
     self.tasks = {}
     self.reports = {}
     self.latest = {}
+    self.specs = {}
 
     return self
 end
@@ -45,6 +47,9 @@ function Cache:load()
         if out.latest then
             self.latest = out.latest
         end
+        if out.specs then
+            self.specs = out.specs
+        end
     end
 end
 
@@ -66,8 +71,9 @@ function Cache:persist()
         tasks = self.tasks or {},
         reports = self.reports or {},
         latest = self.latest or {},
+        specs = self.specs or {},
     }
-    pl.file.write(config.cache.reports, pl.pretty.write(reports, ''))
+    pl.file.write(config.cache.reports, pl.pretty.write(reports, '  '))
 end
 
 
@@ -99,10 +105,14 @@ end
 -- Add report output to cache
 function Cache:add_report(name, report)
     -- Add latest package version string
-    local _, ver = report:get_latest()
-    if ver then
+    local latest, ver = report:get_latest()
+    if ver and (not self.latest[name] or utils.sortVersions(ver, self.latest[name])) then
         self.latest[name] = ver
+
+        -- Add latest spec
+        self.specs[name] = latest.package.spec
     end
+
     local output = pl.tablex.deepcopy(report:get_output())
 
     -- Remove full task outputs, leave only summaries
@@ -126,6 +136,11 @@ end
 
 function Cache:get_report(name)
     return self.reports[name]
+end
+
+
+function Cache:get_spec(name)
+    return self.specs[name]
 end
 
 
