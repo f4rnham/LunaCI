@@ -22,12 +22,45 @@
             <h1>Package: <a href="./">$(e(package_name))</a></h1>
         </div>
 
+        <table class="package-info table table-bordered table-striped table-condensed">
+# if spec.description and next(spec.description) ~= nil then
+#   if spec.description.summary then
+            <tr>
+                <th>Description</th>
+                <td>$(e(spec.description.summary))</td>
+            </tr>
+#   end
+#   if spec.description.homepage then
+            <tr>
+                <th>Homepage</th>
+                <td><a href="$(e(spec.description.homepage))">$(e(spec.description.homepage))</a></td>
+            </tr>
+#   end
+#   if spec.description.license then
+            <tr>
+                <th>License</th>
+                <td>$(e(spec.description.license))</td>
+            </tr>
+#   end
+#   if spec.description.maintainer then
+            <tr>
+                <th>Maintainer</th>
+                <td>$(e(spec.description.maintainer))</td>
+            </tr>
+#   end
+# end
+            <tr>
+                <th>Latest version</th>
+                <td>$(e(spec.version))</td>
+            </tr>
+        </table>
+
         <table class="dashboard table table-bordered table-hover table-striped">
 
             <thead>
                 <tr>
                     <th class="ver" rowspan="2">Version</th>
-                    <th class="date" rowspan="2">Timestamp</th>
+                    <th class="date" rowspan="2">Report generated</th>
 # for _, target in pairs(targets) do
                     <th colspan="$(#tasks)">$(e(target.name))</th>
 # end
@@ -45,7 +78,7 @@
 # for _, output in package_output do
                 <tr>
                     <td class="ver link"><a href="$(urlsafe(output.version)).html">$(e(output.version))</a></td>
-                    <td class="date">$(date("%d. %m. %Y, %H:%M:%S", output.timestamp))</td>
+                    <td class="date parsedate">$(date("%a, %d %b %Y %H:%M:%S %z", output.timestamp))</td>
 #   for _, target in pairs(output.targets) do
 #       for _, task in pairs(target.tasks) do
                     <td class="q $(e(task.success.class))" title="$(e(task.success.msg))">$(e(task.success.title))</td>

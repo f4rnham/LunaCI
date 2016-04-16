@@ -61,6 +61,7 @@ function ReportGenerator:output_file(tpl, env, output_file)
         e = utils.escape_html,
         urlsafe = utils.escape_urlsafe,
         pairs = pairs,
+        next = next,
         sort = plsort,
         date = os.date,
     }
@@ -112,6 +113,7 @@ function ReportGenerator:generate_package(name)
         tasks = self.tasks,
         package_name = name,
         package_output = self:get_package_outputs(name),
+        spec = self:get_package_spec(name),
     }
     utils.force_makepath(pl.path.dirname(output_file))
     return self:output_file(tpl_file, env, output_file)
@@ -127,10 +129,12 @@ function ReportGenerator:generate_package_version(name, version)
     local tpl_file = config.templates.version_file
     local output_file = pl.path.join(config.templates.output_path, config.templates.output_version:format(safename, safeversion))
 
+    local package = self.reports[name]:get_version(version)
     local env = {
         targets = self.targets,
         tasks = self.tasks,
-        package = self.reports[name]:get_version(version),
+        package = package,
+        spec = package.package.spec,
     }
     utils.force_makepath(pl.path.dirname(output_file))
     return self:output_file(tpl_file, env, output_file)
@@ -172,10 +176,25 @@ function ReportGenerator:get_packages_latest()
     local new = {}
 
     for name, report in pairs(self.reports) do
-        new[name] = report:get_latest()
+        local new_latest = report:get_latest()
+        if not cached[name] or utils.sortVersions(new_latest.version, cached[name].version) then
+            new[name] = new_latest
+        end
     end
     local merged = pl.tablex.merge(cached, new, true)
     return merged, pl.tablex.size(merged)
+end
+
+
+function ReportGenerator:get_package_spec(name)
+    local cached = self.cache:get_spec(name) or {}
+    local new = self.reports[name]:get_latest().package.spec
+
+    if next(cached) == nil then
+        return new
+    end
+
+    return utils.sortVersions(new.version, cached.version) and new or cached
 end
 
 

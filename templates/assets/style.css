@@ -1,6 +1,7 @@
 body{padding-top: 50px}
 
 .page-header h1{float: left}
+.page-header:after{content:"";height: 0;width: 0;clear: both;display: block;}
 
 .page-header .package-filter{float: right;margin: 2em 0 0}
 .page-header .package-filter .input-group-addon{background: none;}
@@ -25,18 +26,15 @@ body{padding-top: 50px}
 .table.dashboard td.link a{display: block;padding: 8px;}
 .table.dashboard td.q{width: 70px}
 
+.table.package-info th{width:15%}
 
-.page-header .nav{float: right;margin-top: 1.8em;}
-
+pre.panel-body{margin: 0;background:none;border:none;padding:0 15px}
 .version .panel-group .panel-heading{cursor:pointer}
-.version pre{margin: 0;background:none;border:none}
-.version pre.panel-body{padding:0 15px;max-height:250px;overflow-y: auto;-webkit-transition:max-height .4s ease;transition:max-height .4s ease}
+.version pre.panel-body{max-height:250px;overflow-y: auto;-webkit-transition:max-height .4s ease;transition:max-height .4s ease}
 
 .version pre.panel-body.panel-hidden{max-height: 0;}
 .version .panel.panel-success .panel-body{max-height: 0}
 .version .panel.panel-success .panel-hidden.panel-body{max-height: 250px;}
-
-.version-nav{position: fixed;top:190px;width: 160px;}
 
 
 .footer{padding:40px;margin-top: 40px;border-top: 1px solid #eee;text-align: center;}
