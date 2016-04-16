@@ -73,16 +73,19 @@ function Manager:process_packages()
     for name in self:get_packages() do
         local new_versions = self:get_changed_versions(name)
         if next(new_versions) ~= nil then
+            local vers = {}
             log:info("Processing package '%s'", name)
-            for v in plsort(new_versions, utils.sortVersions) do
+            for v, a in plsort(new_versions, utils.sortVersions) do
                 log:debug("New version: %s", v)
+                vers[v] = a
+                break
             end
-            local worker = Worker(name, new_versions, self.manifest)
+            local worker = Worker(name, vers, self.manifest)
             worker:run(self.targets, self.tasks)
 
             -- Generate package reports
             self.generator:add_report(name, worker:get_report())
-            for version in plsort(new_versions, utils.sortVersions) do
+            for version in plsort(vers, utils.sortVersions) do
                 self.generator:generate_package_version(name, version)
             end
             -- Generate package summary report
