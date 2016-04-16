@@ -22,48 +22,19 @@
             <h1>Package: <a href="./">$(e(package.name))</a> $(e(package.version))</h1>
         </div>
 
-        <table class="package-info table table-bordered table-striped table-condensed">
-# if spec.description and next(spec.description) ~= nil then
-#   if spec.description.summary then
-            <tr>
-                <th>Description</th>
-                <td>$(e(spec.description.summary))</td>
-            </tr>
-#   end
-#   if spec.description.homepage then
-            <tr>
-                <th>Homepage</th>
-                <td><a href="$(e(spec.description.homepage))">$(e(spec.description.homepage))</a></td>
-            </tr>
-#   end
-#   if spec.description.license then
-            <tr>
-                <th>License</th>
-                <td>$(e(spec.description.license))</td>
-            </tr>
-#   end
-#   if spec.description.maintainer then
-            <tr>
-                <th>Maintainer</th>
-                <td>$(e(spec.description.maintainer))</td>
-            </tr>
-#   end
-# end
-            <tr>
-                <th>Report generated</th>
-                <td class="date parsedate">$(date("%a, %d %b %Y %H:%M:%S %z", package.timestamp))</td>
-            </tr>
-        </table>
-
-        <h2>Target results</h2>
+        <div class="package-info">
+            <ul>
+                <li>Timestamp: $(date("%d. %m. %Y, %H:%M:%S", package.timestamp))</li>
+            </ul>
+        </div>
 
 # for _, target in pairs(package.targets) do
         <div class="target panel-group">
-            <h3>$(e(target.target.name))</h3>
+            <h2>$(e(target.target.name))</h2>
 
 #   for _, task in pairs(target.tasks) do
             <div class="panel panel-$(e(task.success.class))">
-                <div class="panel-heading">$(e(task.name)) &ndash; $(e(task.success.msg)) <span class="caret"></span></div>
+                <div class="panel-heading">$(e(task.name)) &ndash; $(e(task.success.msg))</div>
                 <pre class="panel-body">$(e(task.output))</pre>
             </div>
 #   end
