@@ -63,7 +63,7 @@ cp -r ../LuaDist %s
     reload_log(function(level, message)
         dist_log = dist_log .. level .. " " .. message .. "\n"
     end)
-    local ok, dist_err, bad_pkg = dist.install(tostring(package), tmp_deploy_dir)
+    local ok, dist_err, status = dist.install(tostring(package), tmp_deploy_dir)
 
     if ok then
         return config.STATUS_OK, dist_log, true
@@ -81,7 +81,7 @@ cp -r ../LuaDist %s
         end
 
         -- If dist.install failed on other than tested package (most likely dependency)
-        if bad_pkg and bad_pkg.name ~= package.name then
+        if status == 5 then
             return config.STATUS_DEP_F, dist_err, false
         end
 
