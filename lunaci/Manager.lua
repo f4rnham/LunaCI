@@ -70,6 +70,7 @@ end
 function Manager:process_packages()
     local reports = {}
 
+    local i = 0
     for name in self:get_packages() do
         local new_versions = self:get_changed_versions(name)
         if next(new_versions) ~= nil then
@@ -92,6 +93,11 @@ function Manager:process_packages()
             self.generator:generate_package(name)
 
             reports[name] = worker:get_report()
+        end
+
+        i = i + 1
+        if i > 20 then
+            break
         end
     end
 
